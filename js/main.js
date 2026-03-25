@@ -1,62 +1,31 @@
-// js/main.js - ENTRY POINT ONLY
-console.log('🚀 main.js loaded');
+// js/main.js - SIMPLE AND WORKING
+console.log('main.js loaded');
 
-// Initialize app
 async function initApp() {
-    console.log('Initializing app...');
-
     const token = localStorage.getItem('authToken');
     const role = localStorage.getItem('userRole');
-
-    console.log('Token:', !!token, 'Role:', role);
-    console.log('AdminDashboard exists:', typeof window.AdminDashboard === 'function');
-
+    
     if (token && role) {
-        console.log('User logged in as:', role);
-
-        // Hide landing, show dashboard container
-        const landing = document.getElementById('landing-page');
-        const dashboardContainer = document.getElementById('dashboard-container');
-        if (landing) landing.style.display = 'none';
-        if (dashboardContainer) dashboardContainer.style.display = 'block';
-
-        // Normalize role
-        let normalizedRole = role === 'super_admin' ? 'superadmin' : role;
-
-        // Get dashboard class
+        // Hide landing, show dashboard
+        document.getElementById('landing-page').style.display = 'none';
+        document.getElementById('dashboard-container').style.display = 'block';
+        
+        // Get the right dashboard class
         let DashboardClass = null;
-        if (normalizedRole === 'admin') DashboardClass = window.AdminDashboard;
-        else if (normalizedRole === 'superadmin') DashboardClass = window.SuperAdminDashboard;
-        else if (normalizedRole === 'teacher') DashboardClass = window.TeacherDashboard;
-        else if (normalizedRole === 'parent') DashboardClass = window.ParentDashboard;
-        else if (normalizedRole === 'student') DashboardClass = window.StudentDashboard;
-
+        if (role === 'admin') DashboardClass = window.AdminDashboard;
+        else if (role === 'super_admin') DashboardClass = window.SuperAdminDashboard;
+        else if (role === 'teacher') DashboardClass = window.TeacherDashboard;
+        else if (role === 'parent') DashboardClass = window.ParentDashboard;
+        else if (role === 'student') DashboardClass = window.StudentDashboard;
+        
         if (DashboardClass) {
-            try {
-                console.log('Creating dashboard instance for:', normalizedRole);
-                window.dashboard = new DashboardClass('dashboard-content');
-                await window.dashboard.init();
-                console.log('✅ Dashboard initialized');
-            } catch (error) {
-                console.error('❌ Dashboard init failed:', error);
-                document.getElementById('dashboard-content').innerHTML = `
-                    <div class="text-center py-12">
-                        <p class="text-red-500">Failed to load dashboard: ${error.message}</p>
-                        <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
-                    </div>
-                `;
-            }
+            window.dashboard = new DashboardClass('dashboard-content');
+            await window.dashboard.init();
+            console.log('Dashboard loaded');
         } else {
-            console.error('No dashboard class for role:', normalizedRole);
-            document.getElementById('dashboard-content').innerHTML = `
-                <div class="text-center py-12">
-                    <p class="text-red-500">Dashboard not available for role: ${role}</p>
-                    <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
-                </div>
-            `;
+            console.error('No dashboard for role:', role);
         }
     } else {
-        console.log('Not logged in, showing landing page');
         document.getElementById('landing-page').style.display = 'block';
         document.getElementById('dashboard-container').style.display = 'none';
     }
