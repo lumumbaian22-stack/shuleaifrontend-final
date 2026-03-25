@@ -1,3 +1,11 @@
+import './dashboard/roles/SuperAdminDashboard.js';
+import './dashboard/roles/AdminDashboard.js';
+import './dashboard/roles/TeacherDashboard.js';
+import './dashboard/roles/ParentDashboard.js';
+import './dashboard/roles/StudentDashboard.js';
+
+
+
 // js/main.js - APPLICATION ENTRY POINT (Global Version)
 // No imports/exports - everything is global
 
