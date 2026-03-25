@@ -1,19 +1,49 @@
 // js/dashboard/base/ChartRenderer.js
+
+// ✅ Import Chart.js as a module (no globals needed)
+import Chart from 'https://cdn.jsdelivr.net/npm/chart.js/+esm';
+
 export const ChartRenderer = {
     render(container, chartData, type = 'line') {
-        if (!container || !chartData) return null;
-        
+        if (!container) {
+            console.error('ChartRenderer: container is missing');
+            return null;
+        }
+
+        if (!chartData) {
+            console.error('ChartRenderer: chartData is missing');
+            return null;
+        }
+
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js not loaded');
+            return null;
+        }
+
+        // Ensure container has height
+        if (!container.style.height) {
+            container.style.height = '300px';
+        }
+
         const canvas = document.createElement('canvas');
         canvas.id = `chart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         container.appendChild(canvas);
-        
+
         const ctx = canvas.getContext('2d');
-        if (!ctx) return null;
-        
+        if (!ctx) {
+            console.error('ChartRenderer: failed to get canvas context');
+            return null;
+        }
+
         const config = this.getChartConfig(chartData, type);
-        const chart = new Chart(ctx, config);
-        
-        return chart;
+
+        try {
+            const chart = new Chart(ctx, config);
+            return chart;
+        } catch (error) {
+            console.error('ChartRenderer: failed to create chart', error);
+            return null;
+        }
     },
 
     getChartConfig(data, type) {
@@ -38,20 +68,32 @@ export const ChartRenderer = {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                        x: { grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
                     }
                 }
             },
+
             doughnut: {
                 type: 'doughnut',
                 data: {
                     labels: data.labels || [],
                     datasets: [{
                         data: data.values || [],
-                        backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec489a', '#6366f1'],
+                        backgroundColor: [
+                            '#3b82f6', '#8b5cf6', '#10b981',
+                            '#f59e0b', '#ef4444', '#ec489a', '#6366f1'
+                        ],
                         borderWidth: 0,
                         hoverOffset: 10
                     }]
@@ -61,14 +103,20 @@ export const ChartRenderer = {
                     maintainAspectRatio: false,
                     cutout: '65%',
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } },
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20
+                            }
+                        },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
                                     const label = context.label || '';
                                     const value = context.raw || 0;
                                     const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = Math.round((value / total) * 100);
+                                    const percentage = total ? Math.round((value / total) * 100) : 0;
                                     return `${label}: ${value} (${percentage}%)`;
                                 }
                             }
@@ -76,6 +124,7 @@ export const ChartRenderer = {
                     }
                 }
             },
+
             bar: {
                 type: 'bar',
                 data: {
@@ -90,13 +139,21 @@ export const ChartRenderer = {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false }
+                    },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' } },
-                        x: { grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
                     }
                 }
             },
+
             radar: {
                 type: 'radar',
                 data: {
@@ -114,20 +171,26 @@ export const ChartRenderer = {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { r: { beginAtZero: true, max: 100, ticks: { stepSize: 20 } } }
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { stepSize: 20 }
+                        }
+                    }
                 }
             }
         };
-        
+
         return configs[type] || configs.line;
     },
 
     updateTheme(chart, isDark) {
         if (!chart || !chart.options) return;
-        
+
         const gridColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)';
         const textColor = isDark ? '#94a3b8' : '#64748b';
-        
+
         if (chart.options.scales) {
             if (chart.options.scales.y) {
                 if (chart.options.scales.y.grid) chart.options.scales.y.grid.color = gridColor;
@@ -137,11 +200,11 @@ export const ChartRenderer = {
                 if (chart.options.scales.x.ticks) chart.options.scales.x.ticks.color = textColor;
             }
         }
-        
+
         if (chart.options.plugins?.legend?.labels) {
             chart.options.plugins.legend.labels.color = textColor;
         }
-        
+
         chart.update();
     },
 
@@ -151,5 +214,3 @@ export const ChartRenderer = {
         }
     }
 };
-
-window.ChartRenderer = ChartRenderer;
