@@ -1,15 +1,15 @@
 // js/dashboard/roles/StudentDashboard.js
-import { BaseDashboard } from '../base/BaseDashboard.js';
-import { studentAPI } from '../../api/student.js';
-import { dutyAPI } from '../../api/duty.js';
-import { store } from '../../core/store.js';
-import { toast } from '../../ui/feedback/Toast.js';
-import { modalManager } from '../../ui/components/Modal.js';
-import { ChartRenderer } from '../base/ChartRenderer.js';
-import { StatsRenderer } from '../base/StatsRenderer.js';
-import { TableRenderer } from '../base/TableRenderer.js';
-import { formatDate, timeAgo, getInitials } from '../../core/utils.js';
-import { getGradeFromScore } from '../../constants/curriculum.js';
+//import { BaseDashboard } from '../base/BaseDashboard.js';
+//import { studentAPI } from '../../api/student.js';
+//import { dutyAPI } from '../../api/duty.js';
+//import { store } from '../../core/store.js';
+//import { toast } from '../../ui/feedback/Toast.js';
+//import { modalManager } from '../../ui/components/Modal.js';
+//import { ChartRenderer } from '../base/ChartRenderer.js';
+//import { StatsRenderer } from '../base/StatsRenderer.js';
+//import { TableRenderer } from '../base/TableRenderer.js';
+//import { formatDate, timeAgo, getInitials } from '../../core/utils.js';
+//import { getGradeFromScore } from '../../constants/curriculum.js';
 
 class StudentDashboard extends BaseDashboard {
     constructor(containerId) {
