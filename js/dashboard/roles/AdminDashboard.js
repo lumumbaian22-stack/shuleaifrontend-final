@@ -1,16 +1,16 @@
 // js/dashboard/roles/AdminDashboard.js
-import { BaseDashboard } from '../base/BaseDashboard.js';
-import { adminAPI } from '../../api/admin.js';
-import { store } from '../../core/store.js';
-import { toast } from '../../ui/feedback/Toast.js';
-import { modalManager } from '../../ui/components/Modal.js';
-import { ChartRenderer } from '../base/ChartRenderer.js';
-import { StatsRenderer } from '../base/StatsRenderer.js';
-import { TableRenderer } from '../base/TableRenderer.js';
-import { formatDate, timeAgo, getInitials, formatCurrency } from '../../core/utils.js';
-import { getGradeFromScore } from '../../constants/curriculum.js';
+//import { BaseDashboard } from '../base/BaseDashboard.js';
+//import { adminAPI } from '../../api/admin.js';
+//import { store } from '../../core/store.js';
+//import { toast } from '../../ui/feedback/Toast.js';
+//import { modalManager } from '../../ui/components/Modal.js';
+//import { ChartRenderer } from '../base/ChartRenderer.js';
+//import { StatsRenderer } from '../base/StatsRenderer.js';
+//import { TableRenderer } from '../base/TableRenderer.js';
+//import { formatDate, timeAgo, getInitials, formatCurrency } from '../../core/utils.js';
+//import { getGradeFromScore } from '../../constants/curriculum.js';
 
-class AdminDashboard extends BaseDashboard {
+AdminDashboard extends BaseDashboard {
     constructor(containerId) {
         super(containerId);
         this.pendingTeachers = [];
