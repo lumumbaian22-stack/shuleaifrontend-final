@@ -1,8 +1,7 @@
 // js/dashboard/roles/StudentDashboard.js
 
-import BaseDashboard from '../BaseDashboard.js';
+import BaseDashboard from '../base/BaseDashboard.js'; 
 
-import { BaseDashboard } from '../base/BaseDashboard.js';
 import { studentAPI } from '../../api/student.js';
 import { dutyAPI } from '../../api/duty.js';
 import { store } from '../../core/store.js';
