@@ -1,13 +1,16 @@
 // js/dashboard/roles/ParentDashboard.js
-//import { BaseDashboard } from '../base/BaseDashboard.js';
-//import { parentAPI } from '../../api/parent.js';
-//import { store } from '../../core/store.js';
-//import { toast } from '../../ui/feedback/Toast.js';
-//import { modalManager } from '../../ui/components/Modal.js';
-//import { ChartRenderer } from '../base/ChartRenderer.js';
-//import { StatsRenderer } from '../base/StatsRenderer.js';
-//import { TableRenderer } from '../base/TableRenderer.js';
-//import { formatDate, timeAgo, getInitials, formatCurrency } from '../../core/utils.js';
+
+import BaseDashboard from '../BaseDashboard.js';
+
+import { BaseDashboard } from '../base/BaseDashboard.js';
+import { parentAPI } from '../../api/parent.js';
+import { store } from '../../core/store.js';
+import { toast } from '../../ui/feedback/Toast.js';
+import { modalManager } from '../../ui/components/Modal.js';
+import { ChartRenderer } from '../base/ChartRenderer.js';
+import { StatsRenderer } from '../base/StatsRenderer.js';
+import { TableRenderer } from '../base/TableRenderer.js';
+import { formatDate, timeAgo, getInitials, formatCurrency } from '../../core/utils.js';
 
 class ParentDashboard extends BaseDashboard {
     constructor(containerId) {
