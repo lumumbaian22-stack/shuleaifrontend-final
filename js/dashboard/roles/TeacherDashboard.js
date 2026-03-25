@@ -13,7 +13,7 @@ import { TableRenderer } from '../base/TableRenderer.js';
 import { formatDate, timeAgo, getInitials } from '../../core/utils.js';
 import { getGradeFromScore, CURRICULUM_CONFIG } from '../../constants/curriculum.js';
 
-class TeacherDashboard extends BaseDashboard {
+export class TeacherDashboard extends BaseDashboard {
     constructor(containerId) {
         super(containerId);
         this.students = [];
