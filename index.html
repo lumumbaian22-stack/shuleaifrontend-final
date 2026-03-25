@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="theme-color" content="#3b82f6">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>ShuleAI - School Intelligence System</title>
     
     <!-- Tailwind CSS -->
@@ -23,107 +21,30 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Custom CSS -->
     <style>
+        /* Your existing styles... */
         :root {
             --background: 0 0% 100%;
             --foreground: 240 10% 3.9%;
-            --card: 0 0% 100%;
-            --card-foreground: 240 10% 3.9%;
-            --popover: 0 0% 100%;
-            --popover-foreground: 240 10% 3.9%;
             --primary: 217 91% 60%;
             --primary-foreground: 0 0% 98%;
-            --secondary: 240 4.8% 95.9%;
-            --secondary-foreground: 240 5.9% 10%;
-            --muted: 240 4.8% 95.9%;
-            --muted-foreground: 240 3.8% 46.1%;
-            --accent: 240 4.8% 95.9%;
-            --accent-foreground: 240 5.9% 10%;
-            --destructive: 0 84.2% 60.2%;
-            --destructive-foreground: 0 0% 98%;
-            --border: 240 5.9% 90%;
-            --input: 240 5.9% 90%;
-            --ring: 217 91% 60%;
-            --radius: 0.625rem;
-            --sidebar-background: 0 0% 98%;
-            --sidebar-foreground: 240 5.3% 26.1%;
-            --sidebar-primary: 217 91% 60%;
-            --sidebar-primary-foreground: 0 0% 100%;
-            --sidebar-accent: 240 4.8% 95.9%;
-            --sidebar-accent-foreground: 240 5.9% 10%;
-            --sidebar-border: 220 13% 91%;
-            --sidebar-ring: 217 91% 60%;
         }
-        
         .dark {
             --background: 240 10% 3.9%;
             --foreground: 0 0% 98%;
-            --card: 240 10% 3.9%;
-            --card-foreground: 0 0% 98%;
-            --popover: 240 10% 3.9%;
-            --popover-foreground: 0 0% 98%;
-            --primary: 217 91% 60%;
-            --primary-foreground: 0 0% 100%;
-            --secondary: 240 3.7% 15.9%;
-            --secondary-foreground: 0 0% 98%;
-            --muted: 240 3.7% 15.9%;
-            --muted-foreground: 240 5% 64.9%;
-            --accent: 240 3.7% 15.9%;
-            --accent-foreground: 0 0% 98%;
-            --destructive: 0 62.8% 30.6%;
-            --destructive-foreground: 0 0% 98%;
-            --border: 240 3.7% 15.9%;
-            --input: 240 3.7% 15.9%;
-            --ring: 217 91% 60%;
-            --sidebar-background: 240 5.9% 10%;
-            --sidebar-foreground: 240 4.8% 95.9%;
-            --sidebar-primary: 217 91% 60%;
-            --sidebar-primary-foreground: 0 0% 100%;
-            --sidebar-accent: 240 3.7% 15.9%;
-            --sidebar-accent-foreground: 240 4.8% 95.9%;
-            --sidebar-border: 240 3.7% 15.9%;
-            --sidebar-ring: 217 91% 60%;
         }
-        
-        * { border-color: hsl(var(--border)); }
-        
         body {
             background-color: hsl(var(--background));
             color: hsl(var(--foreground));
             font-family: 'Inter', system-ui, sans-serif;
         }
-        
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
         .animate-fade-in { animation: fadeIn 0.3s ease-out; }
-        .animate-slide-in { animation: slideIn 0.3s ease-out; }
-        .animate-slide-up { animation: slideUp 0.3s ease-out; }
-        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(100%); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
         .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1);
-        }
-        
-        .touch-target { min-height: 44px; min-width: 44px; }
-        
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
         .toast-container {
             position: fixed;
             top: 1rem;
@@ -134,126 +55,38 @@
             gap: 0.5rem;
         }
         @media (max-width: 640px) {
-            .toast-container {
-                left: 1rem;
-                right: 1rem;
-                top: auto;
-                bottom: calc(1rem + env(safe-area-inset-bottom) + 56px);
-            }
+            .toast-container { left: 1rem; right: 1rem; top: auto; bottom: calc(1rem + 56px); }
         }
-        
-        .mobile-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            border-top: 1px solid #e2e8f0;
-            z-index: 40;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-        .dark .mobile-bottom-nav {
-            background: hsl(var(--card));
-            border-color: hsl(var(--border));
-        }
-        
-        .sidebar-transition { transition: width 0.3s ease, transform 0.3s ease; }
-        .chart-container { position: relative; width: 100%; }
-        
-        .chat-bubble-sent {
-            background-color: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-            border-radius: 0.5rem;
-            border-top-right-radius: 0;
-            padding: 0.75rem;
-            max-width: 80%;
-            align-self: flex-end;
-        }
-        .chat-bubble-received {
-            background-color: hsl(var(--muted));
-            border-radius: 0.5rem;
-            border-top-left-radius: 0;
-            padding: 0.75rem;
-            max-width: 80%;
-            align-self: flex-start;
-        }
-        
-        .focus-visible:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }
-        .safe-area-top { padding-top: env(safe-area-inset-top); }
-        .safe-area-bottom { padding-bottom: calc(env(safe-area-inset-bottom) + 16px); }
-        .safe-area-left { padding-left: env(safe-area-inset-left); }
-        .safe-area-right { padding-right: env(safe-area-inset-right); }
     </style>
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-                    colors: {
-                        border: "hsl(var(--border))",
-                        input: "hsl(var(--input))",
-                        ring: "hsl(var(--ring))",
-                        background: "hsl(var(--background))",
-                        foreground: "hsl(var(--foreground))",
-                        primary: { DEFAULT: "hsl(var(--primary))", foreground: "hsl(var(--primary-foreground))" },
-                        secondary: { DEFAULT: "hsl(var(--secondary))", foreground: "hsl(var(--secondary-foreground))" },
-                        destructive: { DEFAULT: "hsl(var(--destructive))", foreground: "hsl(var(--destructive-foreground))" },
-                        muted: { DEFAULT: "hsl(var(--muted))", foreground: "hsl(var(--muted-foreground))" },
-                        accent: { DEFAULT: "hsl(var(--accent))", foreground: "hsl(var(--accent-foreground))" },
-                        popover: { DEFAULT: "hsl(var(--popover))", foreground: "hsl(var(--popover-foreground))" },
-                        card: { DEFAULT: "hsl(var(--card))", foreground: "hsl(var(--card-foreground))" },
-                        sidebar: {
-                            DEFAULT: "hsl(var(--sidebar-background))",
-                            foreground: "hsl(var(--sidebar-foreground))",
-                            primary: "hsl(var(--sidebar-primary))",
-                            'primary-foreground': "hsl(var(--sidebar-primary-foreground))",
-                            accent: "hsl(var(--sidebar-accent))",
-                            'accent-foreground': "hsl(var(--sidebar-accent-foreground))",
-                            border: "hsl(var(--sidebar-border))",
-                            ring: "hsl(var(--sidebar-ring))"
-                        }
-                    },
-                    borderRadius: { lg: "var(--radius)", md: "calc(var(--radius) - 2px)", sm: "calc(var(--radius) - 4px)" },
-                    animation: { 'fade-in': 'fadeIn 0.3s ease-out', 'slide-in': 'slideIn 0.3s ease-out', 'slide-up': 'slideUp 0.3s ease-out' },
-                    keyframes: {
-                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-                        slideIn: { '0%': { opacity: '0', transform: 'translateX(-20px)' }, '100%': { opacity: '1', transform: 'translateX(0)' } },
-                        slideUp: { '0%': { opacity: '0', transform: 'translateY(100%)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 <body class="min-h-screen bg-background text-foreground antialiased">
-    
+
     <!-- Toast Container -->
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Loading Overlay -->
     <div id="loading-overlay" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl animate-fade-in">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
             <p class="text-center mt-4">Loading...</p>
         </div>
     </div>
 
-    <!-- Main App Container -->
     <div id="app">
-        <!-- Landing Page (visible by default) -->
+        <!-- LANDING PAGE -->
         <div id="landing-page" class="min-h-screen bg-background">
             <!-- Hero Section -->
             <section class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-violet-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 py-20 lg:py-32">
                 <div class="container mx-auto px-4">
                     <div class="flex flex-col items-center text-center">
+                        <!-- LOGO WITH TRIPLE-CLICK TRIGGER -->
                         <div class="flex items-center gap-3 mb-6 cursor-pointer" id="secret-logo-trigger">
                             <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 shadow-lg">
                                 <i data-lucide="graduation-cap" class="h-8 w-8 text-white"></i>
                             </div>
                             <span class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">ShuleAI</span>
                         </div>
+                        
                         <h1 class="max-w-3xl text-4xl font-extrabold tracking-tight lg:text-5xl xl:text-6xl">School Intelligence System</h1>
                         <p class="mt-6 max-w-2xl text-lg text-muted-foreground">Empowering educators, students, and parents with data-driven insights. Streamline administration, track performance, and foster collaboration.</p>
                         <div class="mt-10 flex flex-wrap gap-4 justify-center">
@@ -303,30 +136,39 @@
                         <p class="text-muted-foreground mt-2">Select your role to sign in or create an account</p>
                     </div>
                     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+                        <!-- Super Admin Card (Hidden by default) -->
                         <div id="superadmin-role-card" class="rounded-xl border bg-card p-6 card-hover flex flex-col items-center text-center hidden">
                             <div class="h-16 w-16 rounded-full bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center mb-4 shadow-md"><i data-lucide="shield" class="h-8 w-8 text-white"></i></div>
                             <h3 class="font-semibold text-lg">Super Admin</h3>
                             <p class="text-xs text-muted-foreground mt-1 mb-4">Platform oversight</p>
                             <div class="flex gap-2 w-full"><button onclick="window.openAuthModal('superadmin', 'signin')" class="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90">Sign In</button></div>
                         </div>
+
+                        <!-- Admin Card -->
                         <div class="rounded-xl border bg-card p-6 card-hover flex flex-col items-center text-center">
                             <div class="h-16 w-16 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center mb-4 shadow-md"><i data-lucide="building-2" class="h-8 w-8 text-white"></i></div>
                             <h3 class="font-semibold text-lg">Admin</h3>
                             <p class="text-xs text-muted-foreground mt-1 mb-4">School management</p>
                             <div class="flex gap-2 w-full"><button onclick="window.openAuthModal('admin', 'signin')" class="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90">Sign In</button><button onclick="window.openAuthModal('admin', 'signup')" class="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium hover:bg-accent">Sign Up</button></div>
                         </div>
+
+                        <!-- Teacher Card -->
                         <div class="rounded-xl border bg-card p-6 card-hover flex flex-col items-center text-center">
                             <div class="h-16 w-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-4 shadow-md"><i data-lucide="presentation" class="h-8 w-8 text-white"></i></div>
                             <h3 class="font-semibold text-lg">Teacher</h3>
                             <p class="text-xs text-muted-foreground mt-1 mb-4">Classroom management</p>
                             <div class="flex gap-2 w-full"><button onclick="window.openAuthModal('teacher', 'signin')" class="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90">Sign In</button><button onclick="window.openAuthModal('teacher', 'signup')" class="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium hover:bg-accent">Sign Up</button></div>
                         </div>
+
+                        <!-- Parent Card -->
                         <div class="rounded-xl border bg-card p-6 card-hover flex flex-col items-center text-center">
                             <div class="h-16 w-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-4 shadow-md"><i data-lucide="heart" class="h-8 w-8 text-white"></i></div>
                             <h3 class="font-semibold text-lg">Parent</h3>
                             <p class="text-xs text-muted-foreground mt-1 mb-4">Track your child</p>
                             <div class="flex gap-2 w-full"><button onclick="window.openAuthModal('parent', 'signin')" class="flex-1 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90">Sign In</button><button onclick="window.openAuthModal('parent', 'signup')" class="flex-1 rounded-lg border border-input bg-background px-3 py-2 text-xs font-medium hover:bg-accent">Sign Up</button></div>
                         </div>
+
+                        <!-- Student Card -->
                         <div class="rounded-xl border bg-card p-6 card-hover flex flex-col items-center text-center">
                             <div class="h-16 w-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center mb-4 shadow-md"><i data-lucide="graduation-cap" class="h-8 w-8 text-white"></i></div>
                             <h3 class="font-semibold text-lg">Student</h3>
@@ -342,10 +184,10 @@
             <footer class="bg-card border-t border-border py-12">
                 <div class="container mx-auto px-4">
                     <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-                        <div><div class="flex items-center gap-2 mb-4"><div class="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center"><i data-lucide="graduation-cap" class="h-4 w-4 text-white"></i></div><span class="text-lg font-bold">ShuleAI</span></div><p class="text-sm text-muted-foreground">Modern school management for the digital age. Empowering education through intelligence.</p></div>
-                        <div><h4 class="font-semibold mb-4">Quick Links</h4><ul class="space-y-2 text-sm text-muted-foreground"><li><a href="#" class="hover:text-foreground transition-colors">About Us</a></li><li><a href="#" class="hover:text-foreground transition-colors">Features</a></li><li><a href="#" class="hover:text-foreground transition-colors">Pricing</a></li><li><a href="#" class="hover:text-foreground transition-colors">Blog</a></li></ul></div>
-                        <div><h4 class="font-semibold mb-4">Support</h4><ul class="space-y-2 text-sm text-muted-foreground"><li><a href="#" class="hover:text-foreground transition-colors">Help Center</a></li><li><a href="#" class="hover:text-foreground transition-colors">Documentation</a></li><li><a href="#" class="hover:text-foreground transition-colors">Contact Us</a></li><li><a href="#" class="hover:text-foreground transition-colors">Privacy Policy</a></li></ul></div>
-                        <div><h4 class="font-semibold mb-4">Connect</h4><div class="flex gap-3"><a href="#" class="h-9 w-9 rounded-lg border border-input flex items-center justify-center hover:bg-accent transition-colors"><i data-lucide="twitter" class="h-4 w-4"></i></a><a href="#" class="h-9 w-9 rounded-lg border border-input flex items-center justify-center hover:bg-accent transition-colors"><i data-lucide="linkedin" class="h-4 w-4"></i></a><a href="#" class="h-9 w-9 rounded-lg border border-input flex items-center justify-center hover:bg-accent transition-colors"><i data-lucide="github" class="h-4 w-4"></i></a><a href="#" class="h-9 w-9 rounded-lg border border-input flex items-center justify-center hover:bg-accent transition-colors"><i data-lucide="mail" class="h-4 w-4"></i></a></div><p class="text-sm text-muted-foreground mt-4">© 2025 ShuleAI. All rights reserved.</p></div>
+                        <div><div class="flex items-center gap-2 mb-4"><div class="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center"><i data-lucide="graduation-cap" class="h-4 w-4 text-white"></i></div><span class="text-lg font-bold">ShuleAI</span></div><p class="text-sm text-muted-foreground">Modern school management for the digital age.</p></div>
+                        <div><h4 class="font-semibold mb-4">Quick Links</h4><ul class="space-y-2 text-sm text-muted-foreground"><li><a href="#">About Us</a></li><li><a href="#">Features</a></li><li><a href="#">Pricing</a></li><li><a href="#">Blog</a></li></ul></div>
+                        <div><h4 class="font-semibold mb-4">Support</h4><ul class="space-y-2 text-sm text-muted-foreground"><li><a href="#">Help Center</a></li><li><a href="#">Documentation</a></li><li><a href="#">Contact Us</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+                        <div><h4 class="font-semibold mb-4">Connect</h4><div class="flex gap-3"><a href="#" class="h-9 w-9 rounded-lg border border-input flex items-center justify-center hover:bg-accent"><i data-lucide="twitter" class="h-4 w-4"></i></a><a href="#" class="h-9 w-9 rounded-lg border border-input flex items-center justify-center hover:bg-accent"><i data-lucide="linkedin" class="h-4 w-4"></i></a><a href="#" class="h-9 w-9 rounded-lg border border-input flex items-center justify-center hover:bg-accent"><i data-lucide="github" class="h-4 w-4"></i></a><a href="#" class="h-9 w-9 rounded-lg border border-input flex items-center justify-center hover:bg-accent"><i data-lucide="mail" class="h-4 w-4"></i></a></div><p class="text-sm text-muted-foreground mt-4">© 2025 ShuleAI. All rights reserved.</p></div>
                     </div>
                 </div>
             </footer>
@@ -362,8 +204,8 @@
                     </div>
                     <div id="auth-modal-content" class="space-y-4"></div>
                     <div class="flex justify-end gap-2 mt-6 sticky bottom-0 bg-card pb-2 pt-4 border-t">
-                        <button onclick="window.closeAuthModal()" class="px-4 py-2 text-sm font-medium rounded-lg border hover:bg-accent transition-colors">Cancel</button>
-                        <button onclick="window.handleAuthSubmit()" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">Continue</button>
+                        <button onclick="window.closeAuthModal()" class="px-4 py-2 text-sm font-medium rounded-lg border hover:bg-accent">Cancel</button>
+                        <button onclick="window.handleAuthSubmit()" class="px-4 py-2 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90">Continue</button>
                     </div>
                 </div>
             </div>
@@ -371,120 +213,140 @@
 
         <!-- Dashboard Container -->
         <div id="dashboard-container" style="display: none;">
-            <!-- Mobile overlay -->
             <div id="mobile-overlay" class="fixed inset-0 bg-black/50 z-30 hidden lg:hidden" onclick="window.toggleMobileSidebar()"></div>
-
-            <!-- Sidebar -->
             <aside id="sidebar" class="fixed left-0 top-0 z-40 h-screen w-64 bg-sidebar border-r border-sidebar-border sidebar-transition -translate-x-full lg:translate-x-0">
                 <div class="flex h-full flex-col">
                     <div class="flex h-16 items-center border-b border-sidebar-border px-6">
-                        <div class="flex items-center gap-2">
-                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-600"><i data-lucide="graduation-cap" class="h-5 w-5 text-white"></i></div>
-                            <span class="text-lg font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">ShuleAI</span>
-                        </div>
+                        <div class="flex items-center gap-2"><div class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-violet-600"><i data-lucide="graduation-cap" class="h-5 w-5 text-white"></i></div><span class="text-lg font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">ShuleAI</span></div>
                     </div>
                     <div class="flex-1 overflow-auto py-4 px-3">
                         <nav id="sidebar-nav" class="space-y-1"></nav>
-                        <div class="mt-8 px-3">
-                            <h3 class="mb-2 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider">Settings</h3>
-                            <nav id="settings-nav" class="space-y-1"></nav>
-                        </div>
+                        <div class="mt-8 px-3"><h3 class="mb-2 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider">Settings</h3><nav id="settings-nav" class="space-y-1"></nav></div>
                     </div>
-                    <div class="border-t border-sidebar-border p-4">
-                        <button onclick="window.logout()" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-                            <i data-lucide="log-out" class="h-5 w-5"></i><span>Log Out</span>
-                        </button>
-                    </div>
+                    <div class="border-t border-sidebar-border p-4"><button onclick="window.logout()" class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"><i data-lucide="log-out" class="h-5 w-5"></i><span>Log Out</span></button></div>
                 </div>
             </aside>
-
-            <!-- Main Content -->
             <div class="lg:ml-64 min-h-screen flex flex-col">
-                <!-- Header -->
-                <header class="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 lg:px-6">
-                    <button onclick="window.toggleMobileSidebar()" class="lg:hidden p-2 hover:bg-accent rounded-lg touch-target"><i data-lucide="menu" class="h-5 w-5"></i></button>
+                <header class="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur px-4 lg:px-6">
+                    <button onclick="window.toggleMobileSidebar()" class="lg:hidden p-2 hover:bg-accent rounded-lg"><i data-lucide="menu" class="h-5 w-5"></i></button>
                     <div class="flex-1"><h1 id="page-title" class="text-xl font-semibold">Dashboard</h1></div>
                     <div class="flex items-center gap-4">
                         <div class="hidden md:flex relative"><i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"></i><input type="text" placeholder="Search..." class="h-9 w-64 rounded-md border border-input bg-background pl-9 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"></div>
-                        <button onclick="window.toggleNotifications()" class="relative p-2 hover:bg-accent rounded-lg touch-target"><i data-lucide="bell" class="h-5 w-5"></i><span id="notification-badge" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 hidden"></span></button>
-                        <button onclick="window.toggleTheme()" class="p-2 hover:bg-accent rounded-lg touch-target"><i data-lucide="sun" class="h-5 w-5 hidden dark:block"></i><i data-lucide="moon" class="h-5 w-5 block dark:hidden"></i></button>
+                        <button onclick="window.toggleNotifications()" class="relative p-2 hover:bg-accent rounded-lg"><i data-lucide="bell" class="h-5 w-5"></i><span id="notification-badge" class="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 hidden"></span></button>
+                        <button onclick="window.toggleTheme()" class="p-2 hover:bg-accent rounded-lg"><i data-lucide="sun" class="h-5 w-5 hidden dark:block"></i><i data-lucide="moon" class="h-5 w-5 block dark:hidden"></i></button>
                         <div class="relative">
-                            <button onclick="window.toggleUserMenu()" class="flex items-center gap-2 p-2 hover:bg-accent rounded-lg">
-                                <div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-medium text-sm"><span id="user-initials">JD</span></div>
-                                <span class="hidden md:block text-sm font-medium" id="user-name">John Doe</span><i data-lucide="chevron-down" class="h-4 w-4 hidden md:block"></i>
-                            </button>
-                            <div id="user-menu" class="absolute right-0 top-full mt-2 w-56 rounded-lg border bg-popover p-2 shadow-lg hidden animate-fade-in">
-                                <div class="px-3 py-2 border-b"><p class="text-sm font-medium" id="dropdown-user-name">John Doe</p><p class="text-xs text-muted-foreground" id="dropdown-user-email">john@shuleai.edu</p></div>
-                                <a href="#" onclick="window.showDashboardSection('profile')" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent rounded-md"><i data-lucide="user" class="h-4 w-4"></i>Profile</a>
-                                <a href="#" onclick="window.showDashboardSection('settings')" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent rounded-md"><i data-lucide="settings" class="h-4 w-4"></i>Settings</a>
-                                <div class="border-t mt-2 pt-2"><button onclick="window.logout()" class="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"><i data-lucide="log-out" class="h-4 w-4"></i>Log Out</button></div>
-                            </div>
+                            <button onclick="window.toggleUserMenu()" class="flex items-center gap-2 p-2 hover:bg-accent rounded-lg"><div class="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-medium text-sm"><span id="user-initials">JD</span></div><span class="hidden md:block text-sm font-medium" id="user-name">John Doe</span><i data-lucide="chevron-down" class="h-4 w-4 hidden md:block"></i></button>
+                            <div id="user-menu" class="absolute right-0 top-full mt-2 w-56 rounded-lg border bg-popover p-2 shadow-lg hidden"><div class="px-3 py-2 border-b"><p class="text-sm font-medium" id="dropdown-user-name">John Doe</p><p class="text-xs text-muted-foreground" id="dropdown-user-email">john@shuleai.edu</p></div><a href="#" onclick="window.showDashboardSection('profile')" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent rounded-md"><i data-lucide="user" class="h-4 w-4"></i>Profile</a><a href="#" onclick="window.showDashboardSection('settings')" class="flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent rounded-md"><i data-lucide="settings" class="h-4 w-4"></i>Settings</a><div class="border-t mt-2 pt-2"><button onclick="window.logout()" class="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md"><i data-lucide="log-out" class="h-4 w-4"></i>Log Out</button></div></div>
                         </div>
                     </div>
                 </header>
-
-                <!-- Main Content Area -->
-                <main class="flex-1 p-4 lg:p-6 pb-24 lg:pb-6">
-                    <div id="dashboard-content" class="w-full"></div>
-                </main>
-
-                <!-- Mobile Bottom Navigation -->
-                <nav class="mobile-bottom-nav lg:hidden safe-area-bottom">
-                    <div class="flex items-center justify-around" id="mobile-nav"></div>
-                </nav>
+                <main class="flex-1 p-4 lg:p-6 pb-24 lg:pb-6"><div id="dashboard-content" class="w-full"></div></main>
+                <nav class="mobile-bottom-nav lg:hidden safe-area-bottom"><div class="flex items-center justify-around" id="mobile-nav"></div></nav>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript Modules - Load in correct order -->
+    <!-- SUPER ADMIN TRIPLE-CLICK SCRIPT - MUST BE AFTER THE LOGO ELEMENT -->
     <script>
-        // Global helper functions that need to be available immediately
-        window.showLoading = function() {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) overlay.classList.remove('hidden');
-        };
-        window.hideLoading = function() {
-            const overlay = document.getElementById('loading-overlay');
-            if (overlay) overlay.classList.add('hidden');
-        };
+        (function() {
+            console.log('🔧 Setting up Super Admin triple-click trigger...');
+            
+            let clickCount = 0;
+            let clickTimer = null;
+            
+            // Function to set up the trigger
+            const setupTrigger = function() {
+                const trigger = document.getElementById('secret-logo-trigger');
+                if (trigger) {
+                    console.log('✅ Found secret-logo-trigger element');
+                    
+                    trigger.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        clickCount++;
+                        console.log(`Click count: ${clickCount}`);
+                        
+                        if (clickTimer) clearTimeout(clickTimer);
+                        clickTimer = setTimeout(() => {
+                            clickCount = 0;
+                            console.log('Click count reset');
+                        }, 2000);
+                        
+                        if (clickCount === 3) {
+                            console.log('🎉 TRIPLE CLICK DETECTED! Showing Super Admin card...');
+                            
+                            const superAdminCard = document.getElementById('superadmin-role-card');
+                            if (superAdminCard) {
+                                superAdminCard.classList.remove('hidden');
+                                superAdminCard.style.display = 'flex';
+                                superAdminCard.style.animation = 'fadeIn 0.5s ease-out';
+                                superAdminCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                
+                                // Show success message
+                                if (typeof window.showToast === 'function') {
+                                    window.showToast('🔓 Super Admin access granted! Click the card to sign in.', 'success', 5000);
+                                } else {
+                                    alert('🔓 Super Admin mode activated!');
+                                }
+                            } else {
+                                console.error('❌ Super admin card not found!');
+                            }
+                            
+                            clickCount = 0;
+                            if (clickTimer) clearTimeout(clickTimer);
+                        }
+                    });
+                    return true;
+                }
+                return false;
+            };
+            
+            // Try immediately
+            if (!setupTrigger()) {
+                // Wait for DOM to load
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', setupTrigger);
+                } else {
+                    // If already loaded, try after a short delay
+                    setTimeout(setupTrigger, 500);
+                }
+            }
+        })();
+    </script>
+
+    <!-- Global helper functions -->
+    <script>
+        window.showLoading = function() { document.getElementById('loading-overlay')?.classList.remove('hidden'); };
+        window.hideLoading = function() { document.getElementById('loading-overlay')?.classList.add('hidden'); };
         window.showToast = function(message, type = 'info', duration = 3000) {
             const container = document.getElementById('toast-container');
             if (!container) return;
-            const toast = document.createElement('div');
             const colors = { success: 'bg-green-500', error: 'bg-red-500', warning: 'bg-amber-500', info: 'bg-blue-500' };
             const icons = { success: 'check-circle', error: 'x-circle', warning: 'alert-triangle', info: 'info' };
-            toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-slide-in`;
-            toast.innerHTML = `<i data-lucide="${icons[type]}" class="h-5 w-5 flex-shrink-0"></i><span>${message}</span>`;
+            const toast = document.createElement('div');
+            toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2`;
+            toast.innerHTML = `<i data-lucide="${icons[type]}" class="h-5 w-5"></i><span>${message}</span>`;
             container.appendChild(toast);
             if (typeof lucide !== 'undefined') lucide.createIcons();
-            setTimeout(() => { toast.classList.add('animate-fade-out'); setTimeout(() => toast.remove(), 300); }, duration);
+            setTimeout(() => { toast.remove(); }, duration);
         };
         window.toggleMobileSidebar = function() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('mobile-overlay');
-            if (sidebar) sidebar.classList.toggle('-translate-x-full');
-            if (overlay) overlay.classList.toggle('hidden');
+            document.getElementById('sidebar')?.classList.toggle('-translate-x-full');
+            document.getElementById('mobile-overlay')?.classList.toggle('hidden');
         };
-        window.toggleUserMenu = function() {
-            const menu = document.getElementById('user-menu');
-            if (menu) menu.classList.toggle('hidden');
-        };
+        window.toggleUserMenu = function() { document.getElementById('user-menu')?.classList.toggle('hidden'); };
         window.toggleTheme = function() {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-            if (typeof window.updateChartTheme === 'function') window.updateChartTheme();
         };
-        window.toggleNotifications = function() {
-            window.showToast('No new notifications', 'info');
+        window.toggleNotifications = function() { window.showToast('No new notifications', 'info'); };
+        window.logout = function() { localStorage.clear(); window.location.reload(); };
+        window.closeAuthModal = function() { document.getElementById('auth-modal')?.classList.add('hidden'); };
+        window.showDashboardSection = function(section) {
+            if (window.dashboard && window.dashboard.showSection) window.dashboard.showSection(section);
+            else window.showToast('Loading ' + section + '...', 'info');
         };
-        window.logout = function() {
-            localStorage.clear();
-            window.location.reload();
-        };
-        window.closeAuthModal = function() {
-            const modal = document.getElementById('auth-modal');
-            if (modal) modal.classList.add('hidden');
-        };
+        
+        // Auth functions
         window.openAuthModal = function(role, mode) {
             window.currentRole = role;
             const modal = document.getElementById('auth-modal');
@@ -496,23 +358,26 @@
             modal.classList.remove('hidden');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
+        
         window.getAuthForm = function(role, mode) {
             if (role === 'superadmin') {
-                return `<div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" placeholder="super@shuleai.com"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Secret Key</label><input type="password" id="auth-secret-key" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" placeholder="Enter super admin key"><p class="text-xs text-muted-foreground mt-1">Contact system administrator for the key</p></div>`;
+                return `<div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Secret Key</label><input type="password" id="auth-secret-key" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" placeholder="Enter super admin key"></div>`;
             }
             if (mode === 'signin') {
                 return `<div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div>`;
-            } else {
-                if (role === 'admin') {
-                    return `<div><label class="block text-sm font-medium mb-1">Full Name</label><input type="text" id="auth-name" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">School Name</label><input type="text" id="auth-school-name" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">School Level</label><select id="auth-school-level" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"><option value="primary">Primary</option><option value="secondary">Secondary</option><option value="both">Both Primary & Secondary</option></select></div><div><label class="block text-sm font-medium mb-1">Curriculum</label><select id="auth-curriculum" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"><option value="cbc">CBC (Competency Based Curriculum)</option><option value="844">8-4-4 System</option><option value="british">British Curriculum</option><option value="american">American Curriculum</option></select></div><div><label class="block text-sm font-medium mb-1">Phone</label><input type="tel" id="auth-phone" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg"><p class="text-xs text-blue-600 dark:text-blue-400"><i data-lucide="info" class="h-3 w-3 inline mr-1"></i>Your school will be pending approval. You'll receive a short code (e.g., SHL-A7K29) for teachers to use.</p></div>`;
-                } else if (role === 'teacher') {
-                    return `<div><label class="block text-sm font-medium mb-1">Full Name</label><input type="text" id="auth-name" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div class="flex gap-2"><div class="flex-1"><label class="block text-sm font-medium mb-1">School Code</label><input type="text" id="auth-school-code" placeholder="e.g., SHL-A7K29" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div class="flex items-end"><button type="button" onclick="window.verifySchoolCodeInput()" class="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm mb-[1px]">Verify</button></div></div><div id="school-verify-status" class="text-xs hidden"></div><div><label class="block text-sm font-medium mb-1">Subjects (comma separated)</label><input type="text" id="auth-subjects" placeholder="Mathematics, Science, English" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Qualification</label><input type="text" id="auth-qualification" placeholder="e.g., B.Ed Mathematics" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Phone</label><input type="tel" id="auth-phone" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div>`;
-                } else if (role === 'parent') {
-                    return `<div><label class="block text-sm font-medium mb-1">Full Name</label><input type="text" id="auth-name" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Student's ELIMUID</label><input type="text" id="auth-student-elimuid" placeholder="e.g., ELI-2024-001" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Phone</label><input type="tel" id="auth-phone" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div>`;
-                }
+            }
+            if (role === 'admin') {
+                return `<div><label class="block text-sm font-medium mb-1">Full Name</label><input type="text" id="auth-name" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">School Name</label><input type="text" id="auth-school-name" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">School Level</label><select id="auth-school-level" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"><option value="primary">Primary</option><option value="secondary">Secondary</option><option value="both">Both</option></select></div><div><label class="block text-sm font-medium mb-1">Curriculum</label><select id="auth-curriculum" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"><option value="cbc">CBC</option><option value="844">8-4-4</option><option value="british">British</option><option value="american">American</option></select></div><div><label class="block text-sm font-medium mb-1">Phone</label><input type="tel" id="auth-phone" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div class="bg-blue-50 p-3 rounded-lg"><p class="text-xs text-blue-600">Your school will be pending approval.</p></div>`;
+            }
+            if (role === 'teacher') {
+                return `<div><label class="block text-sm font-medium mb-1">Full Name</label><input type="text" id="auth-name" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div class="flex gap-2"><div class="flex-1"><label class="block text-sm font-medium mb-1">School Code</label><input type="text" id="auth-school-code" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div class="flex items-end"><button type="button" onclick="window.verifySchoolCodeInput()" class="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-sm">Verify</button></div></div><div id="school-verify-status" class="text-xs hidden"></div><div><label class="block text-sm font-medium mb-1">Subjects</label><input type="text" id="auth-subjects" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Qualification</label><input type="text" id="auth-qualification" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Phone</label><input type="tel" id="auth-phone" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div>`;
+            }
+            if (role === 'parent') {
+                return `<div><label class="block text-sm font-medium mb-1">Full Name</label><input type="text" id="auth-name" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Email</label><input type="email" id="auth-email" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Student's ELIMUID</label><input type="text" id="auth-student-elimuid" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Phone</label><input type="tel" id="auth-phone" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm"></div>`;
             }
             return '';
         };
+        
         window.openStudentLoginModal = function() {
             window.currentRole = 'student';
             const modal = document.getElementById('auth-modal');
@@ -520,10 +385,11 @@
             const contentEl = document.getElementById('auth-modal-content');
             if (!modal || !titleEl || !contentEl) return;
             titleEl.textContent = 'Student Login';
-            contentEl.innerHTML = `<div class="space-y-4"><div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg mb-4"><p class="text-xs text-blue-600 dark:text-blue-400 flex items-start gap-2"><i data-lucide="info" class="h-4 w-4 flex-shrink-0 mt-0.5"></i><span>Welcome! Use your ELIMUID and the default password: <strong>Student123!</strong></span></p></div><div><label class="block text-sm font-medium mb-1">ELIMUID</label><input type="text" id="auth-elimuid" placeholder="e.g., ELI-2024-001" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" required></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" placeholder="Enter your password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" required></div><div class="flex justify-end gap-2 mt-6"><button onclick="window.closeAuthModal()" class="px-4 py-2 text-sm border rounded-lg hover:bg-accent">Cancel</button><button onclick="window.handleStudentLogin()" class="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Login</button></div><div class="text-center mt-4 pt-4 border-t"><p class="text-xs text-muted-foreground">First time? Use default password: <strong>Student123!</strong><br>You'll be asked to change it after logging in.</p></div></div>`;
+            contentEl.innerHTML = `<div class="space-y-4"><div class="bg-blue-50 p-3 rounded-lg"><p class="text-xs text-blue-600">Welcome! Use your ELIMUID and the default password: <strong>Student123!</strong></p></div><div><label class="block text-sm font-medium mb-1">ELIMUID</label><input type="text" id="auth-elimuid" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" required></div><div><label class="block text-sm font-medium mb-1">Password</label><input type="password" id="auth-password" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm" required></div><div class="flex justify-end gap-2 mt-6"><button onclick="window.closeAuthModal()" class="px-4 py-2 border rounded-lg">Cancel</button><button onclick="window.handleStudentLogin()" class="px-4 py-2 bg-primary text-primary-foreground rounded-lg">Login</button></div><div class="text-center mt-4 pt-4 border-t"><p class="text-xs text-muted-foreground">First time? Use default password: <strong>Student123!</strong></p></div></div>`;
             modal.classList.remove('hidden');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         };
+        
         window.handleStudentLogin = async function() {
             const elimuid = document.getElementById('auth-elimuid')?.value;
             const password = document.getElementById('auth-password')?.value;
@@ -531,8 +397,7 @@
             window.showLoading();
             try {
                 const response = await fetch('https://shuleaibackend-32h1.onrender.com/api/auth/student/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ elimuid, password })
                 });
                 const data = await response.json();
@@ -543,23 +408,19 @@
                     window.showToast('Login successful!', 'success');
                     window.closeAuthModal();
                     window.location.reload();
-                } else {
-                    throw new Error(data.message);
-                }
+                } else throw new Error(data.message);
             } catch (error) {
-                window.showToast(error.message || 'Invalid ELIMUID or password. Try the default password: Student123!', 'error');
-            } finally {
-                window.hideLoading();
-            }
+                window.showToast(error.message || 'Invalid credentials', 'error');
+            } finally { window.hideLoading(); }
         };
+        
         window.verifySchoolCodeInput = async function() {
             const code = document.getElementById('auth-school-code')?.value;
             if (!code) { window.showToast('Please enter a school code', 'error'); return; }
             window.showLoading();
             try {
                 const response = await fetch('https://shuleaibackend-32h1.onrender.com/api/auth/verify-school', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ schoolCode: code })
                 });
                 const data = await response.json();
@@ -569,19 +430,18 @@
                     statusDiv.innerHTML = `<i data-lucide="check-circle" class="h-3 w-3 inline mr-1"></i> Verified: ${data.data.schoolName}`;
                     statusDiv.classList.remove('hidden');
                     window.showToast(`School found: ${data.data.schoolName}`, 'success');
-                } else {
-                    throw new Error(data.message);
-                }
+                } else throw new Error(data.message);
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             } catch (error) {
                 const statusDiv = document.getElementById('school-verify-status');
                 statusDiv.className = 'text-xs mt-1 p-2 bg-red-100 text-red-700 rounded-lg';
                 statusDiv.innerHTML = `<i data-lucide="x-circle" class="h-3 w-3 inline mr-1"></i> ${error.message}`;
                 statusDiv.classList.remove('hidden');
                 window.showToast(error.message || 'Invalid school code', 'error');
-            } finally {
-                window.hideLoading();
-            }
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            } finally { window.hideLoading(); }
         };
+        
         window.handleAuthSubmit = async function() {
             const modalTitle = document.getElementById('auth-modal-title').textContent;
             const mode = modalTitle.includes('Sign In') ? 'signin' : 'signup';
@@ -592,10 +452,9 @@
                     const email = document.getElementById('auth-email')?.value;
                     const password = document.getElementById('auth-password')?.value;
                     const secretKey = document.getElementById('auth-secret-key')?.value;
-                    if (!email || !password || !secretKey) { window.showToast('All fields are required', 'error'); return; }
+                    if (!email || !password || !secretKey) { window.showToast('All fields required', 'error'); return; }
                     const response = await fetch('https://shuleaibackend-32h1.onrender.com/api/auth/super-admin/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email, password, secretKey })
                     });
                     const data = await response.json();
@@ -603,19 +462,16 @@
                         localStorage.setItem('authToken', data.data.token);
                         localStorage.setItem('user', JSON.stringify(data.data.user));
                         localStorage.setItem('userRole', 'super_admin');
-                        window.showToast('Super Admin login successful', 'success');
+                        window.showToast('Login successful', 'success');
                         window.closeAuthModal();
                         window.location.reload();
-                    } else {
-                        throw new Error(data.message);
-                    }
+                    } else throw new Error(data.message);
                 } else if (mode === 'signin') {
                     const email = document.getElementById('auth-email')?.value;
                     const password = document.getElementById('auth-password')?.value;
                     if (!email || !password) { window.showToast('Email and password required', 'error'); return; }
                     const response = await fetch('https://shuleaibackend-32h1.onrender.com/api/auth/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email, password, role })
                     });
                     const data = await response.json();
@@ -627,9 +483,7 @@
                         window.showToast('Login successful', 'success');
                         window.closeAuthModal();
                         window.location.reload();
-                    } else {
-                        throw new Error(data.message);
-                    }
+                    } else throw new Error(data.message);
                 } else if (role === 'admin' && mode === 'signup') {
                     const adminData = {
                         name: document.getElementById('auth-name')?.value,
@@ -642,8 +496,7 @@
                     };
                     if (!adminData.name || !adminData.email || !adminData.password || !adminData.schoolName) { window.showToast('Please fill all required fields', 'error'); return; }
                     const response = await fetch('https://shuleaibackend-32h1.onrender.com/api/auth/admin/signup', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(adminData)
                     });
                     const data = await response.json();
@@ -651,12 +504,10 @@
                         window.showToast(data.message, 'success');
                         if (data.data?.shortCode) window.showToast(`Your school code: ${data.data.shortCode}`, 'info', 10000);
                         window.closeAuthModal();
-                    } else {
-                        throw new Error(data.message);
-                    }
+                    } else throw new Error(data.message);
                 } else if (role === 'teacher' && mode === 'signup') {
                     const schoolCode = document.getElementById('auth-school-code')?.value;
-                    if (!schoolCode) { window.showToast('School code is required', 'error'); return; }
+                    if (!schoolCode) { window.showToast('School code required', 'error'); return; }
                     const subjects = document.getElementById('auth-subjects')?.value;
                     const teacherData = {
                         name: document.getElementById('auth-name')?.value,
@@ -669,17 +520,14 @@
                     };
                     if (!teacherData.name || !teacherData.email || !teacherData.password) { window.showToast('Please fill all required fields', 'error'); return; }
                     const response = await fetch('https://shuleaibackend-32h1.onrender.com/api/auth/teacher/signup', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(teacherData)
                     });
                     const data = await response.json();
                     if (data.success) {
                         window.showToast(data.message, 'success');
                         window.closeAuthModal();
-                    } else {
-                        throw new Error(data.message);
-                    }
+                    } else throw new Error(data.message);
                 } else if (role === 'parent' && mode === 'signup') {
                     const parentData = {
                         name: document.getElementById('auth-name')?.value,
@@ -690,30 +538,18 @@
                     };
                     if (!parentData.name || !parentData.email || !parentData.password || !parentData.studentElimuid) { window.showToast('Please fill all required fields', 'error'); return; }
                     const response = await fetch('https://shuleaibackend-32h1.onrender.com/api/auth/parent/signup', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(parentData)
                     });
                     const data = await response.json();
                     if (data.success) {
                         window.showToast(data.message, 'success');
                         window.closeAuthModal();
-                    } else {
-                        throw new Error(data.message);
-                    }
+                    } else throw new Error(data.message);
                 }
             } catch (error) {
                 window.showToast(error.message || 'Authentication failed', 'error');
-            } finally {
-                window.hideLoading();
-            }
-        };
-        window.showDashboardSection = function(section) {
-            if (window.dashboard && window.dashboard.showSection) {
-                window.dashboard.showSection(section);
-            } else {
-                window.showToast('Loading ' + section + '...', 'info');
-            }
+            } finally { window.hideLoading(); }
         };
     </script>
 
