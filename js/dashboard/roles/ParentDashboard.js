@@ -12,7 +12,7 @@ import { StatsRenderer } from '../base/StatsRenderer.js';
 import { TableRenderer } from '../base/TableRenderer.js';
 import { formatDate, timeAgo, getInitials, formatCurrency } from '../../core/utils.js';
 
-class ParentDashboard extends BaseDashboard {
+export class ParentDashboard extends BaseDashboard {
     constructor(containerId) {
         super(containerId);
         this.children = [];
