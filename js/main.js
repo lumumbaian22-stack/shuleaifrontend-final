@@ -1,9 +1,6 @@
 // js/main.js - ENTRY POINT ONLY
 console.log('🚀 main.js loaded');
 
-// Store dashboard instance
-window.dashboard = null;
-
 // Initialize app
 async function initApp() {
     console.log('Initializing app...');
@@ -12,13 +9,7 @@ async function initApp() {
     const role = localStorage.getItem('userRole');
 
     console.log('Token:', !!token, 'Role:', role);
-    console.log('Available dashboards:', {
-        AdminDashboard: !!window.AdminDashboard,
-        SuperAdminDashboard: !!window.SuperAdminDashboard,
-        TeacherDashboard: !!window.TeacherDashboard,
-        ParentDashboard: !!window.ParentDashboard,
-        StudentDashboard: !!window.StudentDashboard
-    });
+    console.log('AdminDashboard exists:', typeof window.AdminDashboard === 'function');
 
     if (token && role) {
         console.log('User logged in as:', role);
@@ -40,30 +31,27 @@ async function initApp() {
         else if (normalizedRole === 'parent') DashboardClass = window.ParentDashboard;
         else if (normalizedRole === 'student') DashboardClass = window.StudentDashboard;
 
-        try {
-            if (DashboardClass) {
+        if (DashboardClass) {
+            try {
                 console.log('Creating dashboard instance for:', normalizedRole);
                 window.dashboard = new DashboardClass('dashboard-content');
                 await window.dashboard.init();
                 console.log('✅ Dashboard initialized');
-            } else {
-                throw new Error('No dashboard class found for role: ' + normalizedRole);
+            } catch (error) {
+                console.error('❌ Dashboard init failed:', error);
+                document.getElementById('dashboard-content').innerHTML = `
+                    <div class="text-center py-12">
+                        <p class="text-red-500">Failed to load dashboard: ${error.message}</p>
+                        <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
+                    </div>
+                `;
             }
-        } catch (error) {
-            console.error('❌ Dashboard failed:', error);
-
-            // Clear bad auth state to stop reload loops
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('userRole');
-            localStorage.removeItem('user');
-            localStorage.removeItem('school');
-
+        } else {
+            console.error('No dashboard class for role:', normalizedRole);
             document.getElementById('dashboard-content').innerHTML = `
                 <div class="text-center py-12">
-                    <p class="text-red-500">Something went wrong. Please login again.</p>
-                    <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">
-                        Reload
-                    </button>
+                    <p class="text-red-500">Dashboard not available for role: ${role}</p>
+                    <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
                 </div>
             `;
         }
@@ -74,9 +62,9 @@ async function initApp() {
     }
 }
 
-// Simple router
+// Router
 window.router = {
-    navigate: function (section) {
+    navigate: function(section) {
         console.log('Navigate to:', section);
         if (window.dashboard && window.dashboard.showSection) {
             window.dashboard.showSection(section);
@@ -93,7 +81,7 @@ window.router = {
 };
 
 // Auth modal functions
-window.openAuthModal = function (role, mode) {
+window.openAuthModal = function(role, mode) {
     console.log('Open auth modal:', role, mode);
     window.currentRole = role;
     const modal = document.getElementById('auth-modal');
@@ -126,7 +114,7 @@ window.openAuthModal = function (role, mode) {
     modal.classList.remove('hidden');
 };
 
-window.openStudentLoginModal = function () {
+window.openStudentLoginModal = function() {
     window.currentRole = 'student';
     const modal = document.getElementById('auth-modal');
     const titleEl = document.getElementById('auth-modal-title');
@@ -141,11 +129,11 @@ window.openStudentLoginModal = function () {
     modal.classList.remove('hidden');
 };
 
-window.closeAuthModal = function () {
+window.closeAuthModal = function() {
     document.getElementById('auth-modal')?.classList.add('hidden');
 };
 
-window.handleAuthSubmit = async function () {
+window.handleAuthSubmit = async function() {
     const role = window.currentRole;
     const isStudent = role === 'student';
     const elimuid = isStudent ? document.getElementById('auth-elimuid')?.value : null;
@@ -158,7 +146,7 @@ window.handleAuthSubmit = async function () {
     if (!isStudent && !email) return alert('Please enter email');
     if (role === 'superadmin' && !secretKey) return alert('Secret key required');
 
-    showLoading();
+    window.showLoading();
 
     try {
         let url, body;
@@ -187,7 +175,7 @@ window.handleAuthSubmit = async function () {
             localStorage.setItem('userRole', data.data.user.role);
             if (data.data.school) localStorage.setItem('school', JSON.stringify(data.data.school));
 
-            closeAuthModal();
+            window.closeAuthModal();
             window.location.reload();
         } else {
             alert(data.message || 'Login failed');
@@ -195,7 +183,7 @@ window.handleAuthSubmit = async function () {
     } catch (error) {
         alert('Login failed: ' + error.message);
     } finally {
-        hideLoading();
+        window.hideLoading();
     }
 };
 
@@ -217,10 +205,10 @@ window.showDashboardSection = window.router.navigate;
 // Triple click for super admin
 let clickCount = 0;
 let clickTimer = null;
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
     const trigger = document.getElementById('secret-logo-trigger');
     if (trigger) {
-        trigger.addEventListener('click', function () {
+        trigger.addEventListener('click', function() {
             clickCount++;
             if (clickTimer) clearTimeout(clickTimer);
             clickTimer = setTimeout(() => clickCount = 0, 2000);
