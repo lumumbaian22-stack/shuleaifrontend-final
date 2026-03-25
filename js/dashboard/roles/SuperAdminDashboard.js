@@ -1,8 +1,7 @@
 // js/dashboard/roles/SuperAdminDashboard.js
 
-import BaseDashboard from '../BaseDashboard.js';
+import BaseDashboard from '../base/BaseDashboard.js'; 
 
-import { BaseDashboard } from '../base/BaseDashboard.js';
 import { superAdminAPI } from '../../api/superadmin.js';
 import { store } from '../../core/store.js';
 import { toast } from '../../ui/feedback/Toast.js';
