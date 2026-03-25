@@ -1,8 +1,8 @@
 // js/main.js - ENTRY POINT ONLY
-console.log('main.js loaded');
+console.log('🚀 main.js loaded');
 
 // Store dashboard instance
-window.dashboardInstance = null;
+window.dashboard = null;
 
 // Initialize app
 async function initApp() {
@@ -10,6 +10,15 @@ async function initApp() {
     
     const token = localStorage.getItem('authToken');
     const role = localStorage.getItem('userRole');
+    
+    console.log('Token:', !!token, 'Role:', role);
+    console.log('Available dashboards:', {
+        AdminDashboard: !!window.AdminDashboard,
+        SuperAdminDashboard: !!window.SuperAdminDashboard,
+        TeacherDashboard: !!window.TeacherDashboard,
+        ParentDashboard: !!window.ParentDashboard,
+        StudentDashboard: !!window.StudentDashboard
+    });
     
     if (token && role) {
         console.log('User logged in as:', role);
@@ -20,21 +29,31 @@ async function initApp() {
         if (landing) landing.style.display = 'none';
         if (dashboardContainer) dashboardContainer.style.display = 'block';
         
-        // Create dashboard based on role
-        const DashboardClass = {
-            'admin': window.AdminDashboard,
-            'super_admin': window.SuperAdminDashboard,
-            'teacher': window.TeacherDashboard,
-            'parent': window.ParentDashboard,
-            'student': window.StudentDashboard
-        }[role];
+        // Normalize role
+        let normalizedRole = role;
+        if (role === 'super_admin') normalizedRole = 'superadmin';
+        
+        // Get dashboard class
+        let DashboardClass = null;
+        if (normalizedRole === 'admin') DashboardClass = window.AdminDashboard;
+        else if (normalizedRole === 'superadmin') DashboardClass = window.SuperAdminDashboard;
+        else if (normalizedRole === 'teacher') DashboardClass = window.TeacherDashboard;
+        else if (normalizedRole === 'parent') DashboardClass = window.ParentDashboard;
+        else if (normalizedRole === 'student') DashboardClass = window.StudentDashboard;
         
         if (DashboardClass) {
-            window.dashboardInstance = new DashboardClass('dashboard-content');
-            await window.dashboardInstance.init();
+            console.log('Creating dashboard instance for:', normalizedRole);
+            window.dashboard = new DashboardClass('dashboard-content');
+            await window.dashboard.init();
+            console.log('✅ Dashboard initialized');
         } else {
-            console.error('No dashboard for role:', role);
-            document.getElementById('dashboard-content').innerHTML = '<div class="text-center py-12"><p class="text-red-500">Dashboard not available</p></div>';
+            console.error('No dashboard class for role:', normalizedRole);
+            document.getElementById('dashboard-content').innerHTML = `
+                <div class="text-center py-12">
+                    <p class="text-red-500">Dashboard not available for role: ${role}</p>
+                    <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
+                </div>
+            `;
         }
     } else {
         console.log('Not logged in, showing landing page');
@@ -43,7 +62,25 @@ async function initApp() {
     }
 }
 
-// Auth modal functions (make them global)
+// Simple router
+window.router = {
+    navigate: function(section) {
+        console.log('Navigate to:', section);
+        if (window.dashboard && window.dashboard.showSection) {
+            window.dashboard.showSection(section);
+        } else {
+            document.getElementById('dashboard-content').innerHTML = `
+                <div class="text-center py-12">
+                    <h2 class="text-2xl font-bold mb-4">${section}</h2>
+                    <p class="text-muted-foreground">This section is under development.</p>
+                    <button onclick="window.dashboard?.refresh()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Back to Dashboard</button>
+                </div>
+            `;
+        }
+    }
+};
+
+// Auth modal functions
 window.openAuthModal = function(role, mode) {
     console.log('Open auth modal:', role, mode);
     window.currentRole = role;
@@ -55,22 +92,24 @@ window.openAuthModal = function(role, mode) {
     
     titleEl.textContent = mode === 'signin' ? `Sign In as ${role}` : `Sign Up as ${role}`;
     
-    // Simple form
+    // Simple login form
     if (role === 'superadmin') {
         contentEl.innerHTML = `
-            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded p-2 mb-2"></div>
-            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded p-2 mb-2"></div>
-            <div><input type="password" id="auth-secret-key" placeholder="Secret Key" class="w-full border rounded p-2"></div>
+            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded-lg p-2 mb-2"></div>
+            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded-lg p-2 mb-2"></div>
+            <div><input type="password" id="auth-secret-key" placeholder="Secret Key" class="w-full border rounded-lg p-2"></div>
         `;
     } else if (mode === 'signin') {
         contentEl.innerHTML = `
-            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded p-2 mb-2"></div>
-            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded p-2"></div>
+            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded-lg p-2 mb-2"></div>
+            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded-lg p-2"></div>
         `;
     } else {
-        contentEl.innerHTML = `<div><input type="text" id="auth-name" placeholder="Full Name" class="w-full border rounded p-2 mb-2"></div>
-            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded p-2 mb-2"></div>
-            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded p-2"></div>`;
+        contentEl.innerHTML = `
+            <div><input type="text" id="auth-name" placeholder="Full Name" class="w-full border rounded-lg p-2 mb-2"></div>
+            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded-lg p-2 mb-2"></div>
+            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded-lg p-2"></div>
+        `;
     }
     
     modal.classList.remove('hidden');
@@ -84,9 +123,9 @@ window.openStudentLoginModal = function() {
     
     titleEl.textContent = 'Student Login';
     contentEl.innerHTML = `
-        <div><input type="text" id="auth-elimuid" placeholder="ELIMUID" class="w-full border rounded p-2 mb-2"></div>
-        <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded p-2"></div>
-        <div class="mt-4 text-center text-sm text-muted-foreground">Default: Student123!</div>
+        <div><input type="text" id="auth-elimuid" placeholder="ELIMUID" class="w-full border rounded-lg p-2 mb-2"></div>
+        <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded-lg p-2"></div>
+        <div class="mt-4 text-center text-sm text-muted-foreground">Default password: <strong>Student123!</strong></div>
     `;
     modal.classList.remove('hidden');
 };
@@ -174,23 +213,8 @@ window.hideLoading = function() { document.getElementById('loading-overlay')?.cl
 window.toggleMobileSidebar = function() { document.getElementById('sidebar')?.classList.toggle('-translate-x-full'); };
 window.toggleTheme = function() { document.documentElement.classList.toggle('dark'); };
 window.logout = function() { localStorage.clear(); window.location.reload(); };
-window.refreshData = function() { if (window.dashboardInstance) window.dashboardInstance.refresh(); };
-window.showDashboardSection = function(section) {
-    if (window.router?.navigate) window.router.navigate(section);
-    else console.log('Navigate to:', section);
-};
-
-// Add simple router
-window.router = {
-    navigate: function(section) {
-        console.log('Navigate to:', section);
-        if (window.dashboardInstance && window.dashboardInstance.showSection) {
-            window.dashboardInstance.showSection(section);
-        } else {
-            alert('Section: ' + section);
-        }
-    }
-};
+window.refreshData = function() { if (window.dashboard) window.dashboard.refresh(); };
+window.showDashboardSection = window.router.navigate;
 
 // Triple click for super admin
 let clickCount = 0;
@@ -206,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const card = document.getElementById('superadmin-role-card');
                 if (card) card.classList.remove('hidden');
                 clickCount = 0;
+                if (clickTimer) clearTimeout(clickTimer);
             }
         });
     }
