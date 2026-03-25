@@ -1,13 +1,9 @@
-
-// js/main.js - APPLICATION ENTRY POINT (Global Version)
-// No imports/exports - everything is global
-
+// js/main.js - SIMPLIFIED WORKING VERSION
 console.log('🚀 main.js loaded');
 
-// Application state
+// Global state
 window.App = {
     dashboard: null,
-    initialized: false,
     currentUser: null,
     currentRole: null
 };
@@ -20,27 +16,25 @@ window.initApplication = async function() {
     console.log('🚀 Initializing ShuleAI...');
 
     try {
-        // 1. Load theme
+        // Load theme
         loadTheme();
         
-        // 2. Check authentication
+        // Check authentication
         const token = localStorage.getItem('authToken');
-        const user = localStorage.getItem('user');
+        const userStr = localStorage.getItem('user');
         const role = localStorage.getItem('userRole');
         
-        if (token && user && role) {
+        console.log('Auth check:', { token: !!token, userStr: !!userStr, role });
+        
+        if (token && userStr && role) {
             try {
-                window.App.currentUser = JSON.parse(user);
+                window.App.currentUser = JSON.parse(userStr);
                 window.App.currentRole = role;
                 console.log('✅ User authenticated:', window.App.currentUser.name);
                 
                 // Show dashboard
                 await showDashboard(role);
                 
-                // Connect WebSocket if available
-                if (typeof connectWebSocket === 'function') {
-                    setTimeout(connectWebSocket, 500);
-                }
             } catch (e) {
                 console.error('Failed to parse user:', e);
                 showLandingPage();
@@ -50,7 +44,6 @@ window.initApplication = async function() {
             showLandingPage();
         }
         
-        window.App.initialized = true;
         console.log('✅ Application initialized');
         
     } catch (error) {
@@ -78,6 +71,10 @@ function showLandingPage() {
     if (dashboardContainer) dashboardContainer.style.display = 'none';
 }
 
+// ============================================
+// DASHBOARD RENDERING - SIMPLE VERSION
+// ============================================
+
 async function showDashboard(role) {
     console.log('📊 Showing dashboard for role:', role);
     
@@ -87,67 +84,405 @@ async function showDashboard(role) {
     // Hide landing, show dashboard
     const landingPage = document.getElementById('landing-page');
     const dashboardContainer = document.getElementById('dashboard-container');
+    const dashboardContent = document.getElementById('dashboard-content');
     
     if (landingPage) landingPage.style.display = 'none';
     if (dashboardContainer) dashboardContainer.style.display = 'block';
     
-    // Create dashboard based on role
-    if (role === 'superadmin' && typeof SuperAdminDashboard !== 'undefined') {
-        window.App.dashboard = new SuperAdminDashboard('dashboard-content');
-        await window.App.dashboard.init();
-    } 
-    else if (role === 'admin' && typeof AdminDashboard !== 'undefined') {
-        window.App.dashboard = new AdminDashboard('dashboard-content');
-        await window.App.dashboard.init();
-    }
-    else if (role === 'teacher' && typeof TeacherDashboard !== 'undefined') {
-        window.App.dashboard = new TeacherDashboard('dashboard-content');
-        await window.App.dashboard.init();
-    }
-    else if (role === 'parent' && typeof ParentDashboard !== 'undefined') {
-        window.App.dashboard = new ParentDashboard('dashboard-content');
-        await window.App.dashboard.init();
-    }
-    else if (role === 'student' && typeof StudentDashboard !== 'undefined') {
-        window.App.dashboard = new StudentDashboard('dashboard-content');
-        await window.App.dashboard.init();
-    }
-    else {
-        console.error('Unknown role or dashboard not loaded:', role);
-        document.getElementById('dashboard-content').innerHTML = `
-            <div class="text-center py-12">
-                <p class="text-red-500">Dashboard not available for role: ${role}</p>
-                <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
-            </div>
-        `;
+    if (!dashboardContent) {
+        console.error('Dashboard content container not found');
+        return;
     }
     
-    // Update sidebar and user info
-    if (typeof updateSidebar === 'function') updateSidebar(role);
-    if (typeof updateUserInfo === 'function') updateUserInfo();
+    // Get user data
+    const user = window.App.currentUser || {};
+    const school = JSON.parse(localStorage.getItem('school') || '{}');
+    
+    // Render simple dashboard based on role
+    if (role === 'admin') {
+        dashboardContent.innerHTML = renderAdminDashboard(user, school);
+    } 
+    else if (role === 'superadmin') {
+        dashboardContent.innerHTML = renderSuperAdminDashboard(user);
+    }
+    else if (role === 'teacher') {
+        dashboardContent.innerHTML = renderTeacherDashboard(user);
+    }
+    else if (role === 'parent') {
+        dashboardContent.innerHTML = renderParentDashboard(user);
+    }
+    else if (role === 'student') {
+        dashboardContent.innerHTML = renderStudentDashboard(user);
+    }
+    else {
+        dashboardContent.innerHTML = `<div class="text-center py-12"><p class="text-red-500">Unknown role: ${role}</p><button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button></div>`;
+    }
+    
+    // Update sidebar
+    updateSidebar(role);
+    
+    // Update user info in header
+    updateUserInfo();
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+    }
 }
 
 // ============================================
-// GLOBAL FUNCTIONS
+// DASHBOARD RENDERERS
 // ============================================
 
-window.showDashboard = showDashboard;
-window.showLandingPage = showLandingPage;
-window.showDashboardSection = function(section) {
-    if (window.App.dashboard && window.App.dashboard.showSection) {
-        window.App.dashboard.showSection(section);
-    } else if (typeof window.loadSection === 'function') {
-        window.loadSection(section);
-    } else {
-        console.log('Loading section:', section);
-        if (typeof showToast === 'function') {
-            showToast('Loading ' + section + '...', 'info');
+function renderAdminDashboard(user, school) {
+    return `
+        <div class="space-y-6 animate-fade-in">
+            <!-- School Profile Card -->
+            <div class="rounded-xl border bg-card p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h2 class="text-2xl font-bold">${school.name || 'Your School'}</h2>
+                            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full">${school.status || 'Active'}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <p class="text-sm"><span class="font-mono bg-muted px-2 py-1 rounded">Short Code: ${school.shortCode || 'SHL-XXXXX'}</span></p>
+                            <button onclick="window.showNameChangeModal()" class="text-sm text-primary hover:underline">Change School Name</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm">
+                        <p class="text-xs text-muted-foreground">Share this code with teachers</p>
+                        <p class="text-lg font-mono font-bold">${school.shortCode || 'SHL-XXXXX'}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-xl border bg-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-sm font-medium text-muted-foreground">Total Students</p><h3 class="text-2xl font-bold mt-1">0</h3></div>
+                        <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center"><i data-lucide="users" class="h-6 w-6 text-blue-600"></i></div>
+                    </div>
+                </div>
+                <div class="rounded-xl border bg-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-sm font-medium text-muted-foreground">Teachers</p><h3 class="text-2xl font-bold mt-1">0</h3><p class="text-xs text-green-600 mt-1">0 pending approval</p></div>
+                        <div class="h-12 w-12 rounded-lg bg-violet-100 flex items-center justify-center"><i data-lucide="user-plus" class="h-6 w-6 text-violet-600"></i></div>
+                    </div>
+                </div>
+                <div class="rounded-xl border bg-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-sm font-medium text-muted-foreground">Classes</p><h3 class="text-2xl font-bold mt-1">0</h3></div>
+                        <div class="h-12 w-12 rounded-lg bg-emerald-100 flex items-center justify-center"><i data-lucide="book-open" class="h-6 w-6 text-emerald-600"></i></div>
+                    </div>
+                </div>
+                <div class="rounded-xl border bg-card p-6">
+                    <div class="flex items-center justify-between">
+                        <div><p class="text-sm font-medium text-muted-foreground">Attendance Rate</p><h3 class="text-2xl font-bold mt-1">94%</h3></div>
+                        <div class="h-12 w-12 rounded-lg bg-amber-100 flex items-center justify-center"><i data-lucide="calendar-check" class="h-6 w-6 text-amber-600"></i></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="grid gap-4 md:grid-cols-3">
+                <button onclick="window.showDashboardSection('students')" class="p-6 border rounded-lg hover:bg-accent transition-colors text-left">
+                    <i data-lucide="users" class="h-8 w-8 text-green-600 mb-3"></i>
+                    <h4 class="font-semibold">Student Management</h4>
+                    <p class="text-sm text-muted-foreground">View and manage all students</p>
+                </button>
+                <button onclick="window.showDashboardSection('teachers')" class="p-6 border rounded-lg hover:bg-accent transition-colors text-left">
+                    <i data-lucide="user-plus" class="h-8 w-8 text-blue-600 mb-3"></i>
+                    <h4 class="font-semibold">Teacher Management</h4>
+                    <p class="text-sm text-muted-foreground">Manage teachers and approvals</p>
+                </button>
+                <button onclick="window.showDashboardSection('settings')" class="p-6 border rounded-lg hover:bg-accent transition-colors text-left">
+                    <i data-lucide="settings" class="h-8 w-8 text-purple-600 mb-3"></i>
+                    <h4 class="font-semibold">School Settings</h4>
+                    <p class="text-sm text-muted-foreground">Configure curriculum and subjects</p>
+                </button>
+            </div>
+            
+            <!-- Welcome Message -->
+            <div class="rounded-xl border bg-card p-6 text-center">
+                <i data-lucide="check-circle" class="h-12 w-12 mx-auto text-green-500 mb-3"></i>
+                <h3 class="text-xl font-semibold mb-2">Welcome back, ${user.name || 'Admin'}!</h3>
+                <p class="text-muted-foreground">Your school dashboard is ready. Use the buttons above to manage your school.</p>
+            </div>
+        </div>
+    `;
+}
+
+function renderSuperAdminDashboard(user) {
+    return `
+        <div class="space-y-6 animate-fade-in">
+            <div class="rounded-xl border bg-card p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-700">
+                <h2 class="text-2xl font-bold">Super Admin Dashboard</h2>
+                <p class="text-muted-foreground mt-2">Welcome, ${user.name || 'Super Admin'}! Manage all schools and platform settings.</p>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-xl border bg-card p-6"><div class="flex items-center justify-between"><div><p class="text-sm text-muted-foreground">Total Schools</p><h3 class="text-2xl font-bold">0</h3></div><div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center"><i data-lucide="building-2" class="h-6 w-6 text-blue-600"></i></div></div></div>
+                <div class="rounded-xl border bg-card p-6"><div class="flex items-center justify-between"><div><p class="text-sm text-muted-foreground">Active Schools</p><h3 class="text-2xl font-bold">0</h3></div><div class="h-12 w-12 rounded-lg bg-green-100 flex items-center justify-center"><i data-lucide="check-circle" class="h-6 w-6 text-green-600"></i></div></div></div>
+                <div class="rounded-xl border bg-card p-6"><div class="flex items-center justify-between"><div><p class="text-sm text-muted-foreground">Pending Approvals</p><h3 class="text-2xl font-bold">0</h3></div><div class="h-12 w-12 rounded-lg bg-yellow-100 flex items-center justify-center"><i data-lucide="clock" class="h-6 w-6 text-yellow-600"></i></div></div></div>
+                <div class="rounded-xl border bg-card p-6"><div class="flex items-center justify-between"><div><p class="text-sm text-muted-foreground">Total Users</p><h3 class="text-2xl font-bold">0</h3></div><div class="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center"><i data-lucide="users" class="h-6 w-6 text-purple-600"></i></div></div></div>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-2">
+                <button onclick="window.showDashboardSection('schools')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="building-2" class="h-8 w-8 mx-auto mb-3 text-blue-600"></i><h4 class="font-semibold text-center">Manage Schools</h4><p class="text-sm text-muted-foreground text-center">View and manage all registered schools</p></button>
+                <button onclick="window.showDashboardSection('settings')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="settings" class="h-8 w-8 mx-auto mb-3 text-purple-600"></i><h4 class="font-semibold text-center">Platform Settings</h4><p class="text-sm text-muted-foreground text-center">Configure global platform settings</p></button>
+            </div>
+        </div>
+    `;
+}
+
+function renderTeacherDashboard(user) {
+    return `
+        <div class="space-y-6 animate-fade-in">
+            <div class="rounded-xl border bg-card p-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-gray-800 dark:to-gray-700">
+                <h2 class="text-2xl font-bold">Teacher Dashboard</h2>
+                <p class="text-muted-foreground mt-2">Welcome back, ${user.name || 'Teacher'}!</p>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">My Students</p><h3 class="text-2xl font-bold">0</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Class Average</p><h3 class="text-2xl font-bold">0%</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Attendance Today</p><h3 class="text-2xl font-bold">0/0</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Pending Tasks</p><h3 class="text-2xl font-bold">0</h3></div></div>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-4">
+                <button onclick="window.showDashboardSection('students')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="users" class="h-6 w-6 mx-auto mb-2 text-blue-600"></i><p class="text-center font-medium">My Students</p></button>
+                <button onclick="window.showDashboardSection('attendance')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="calendar-check" class="h-6 w-6 mx-auto mb-2 text-green-600"></i><p class="text-center font-medium">Attendance</p></button>
+                <button onclick="window.showDashboardSection('grades')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="trending-up" class="h-6 w-6 mx-auto mb-2 text-purple-600"></i><p class="text-center font-medium">Grades</p></button>
+                <button onclick="window.showDashboardSection('duty')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="clock" class="h-6 w-6 mx-auto mb-2 text-amber-600"></i><p class="text-center font-medium">My Duty</p></button>
+            </div>
+        </div>
+    `;
+}
+
+function renderParentDashboard(user) {
+    return `
+        <div class="space-y-6 animate-fade-in">
+            <div class="rounded-xl border bg-card p-6 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-700">
+                <h2 class="text-2xl font-bold">Parent Dashboard</h2>
+                <p class="text-muted-foreground mt-2">Welcome, ${user.name || 'Parent'}! Track your child's progress.</p>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Attendance</p><h3 class="text-2xl font-bold">95%</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Class Average</p><h3 class="text-2xl font-bold">82%</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Homework</p><h3 class="text-2xl font-bold">3</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Fee Balance</p><h3 class="text-2xl font-bold">$250</h3></div></div>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-3">
+                <button onclick="window.showDashboardSection('progress')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="trending-up" class="h-8 w-8 mx-auto mb-3 text-green-600"></i><h4 class="font-semibold text-center">Academic Progress</h4></button>
+                <button onclick="window.showDashboardSection('payments')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="credit-card" class="h-8 w-8 mx-auto mb-3 text-blue-600"></i><h4 class="font-semibold text-center">Payments</h4></button>
+                <button onclick="window.showDashboardSection('chat')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="message-circle" class="h-8 w-8 mx-auto mb-3 text-purple-600"></i><h4 class="font-semibold text-center">Message Teacher</h4></button>
+            </div>
+        </div>
+    `;
+}
+
+function renderStudentDashboard(user) {
+    return `
+        <div class="space-y-6 animate-fade-in">
+            <div class="rounded-xl border bg-card p-6 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-gray-800 dark:to-gray-700">
+                <h2 class="text-2xl font-bold">Student Dashboard</h2>
+                <p class="text-muted-foreground mt-2">Welcome, ${user.name || 'Student'}! Keep track of your learning.</p>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">My ELIMUID</p><h3 class="text-lg font-mono font-bold">${user.elimuid || 'ELI-2024-001'}</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Class Average</p><h3 class="text-2xl font-bold">82%</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">My Attendance</p><h3 class="text-2xl font-bold">95%</h3></div></div>
+                <div class="rounded-xl border bg-card p-6"><div><p class="text-sm text-muted-foreground">Study Groups</p><h3 class="text-2xl font-bold">3</h3></div></div>
+            </div>
+            
+            <div class="grid gap-4 md:grid-cols-2">
+                <button onclick="window.showDashboardSection('grades')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="trending-up" class="h-8 w-8 mx-auto mb-3 text-green-600"></i><h4 class="font-semibold text-center">My Grades</h4></button>
+                <button onclick="window.showDashboardSection('attendance')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="calendar-check" class="h-8 w-8 mx-auto mb-3 text-blue-600"></i><h4 class="font-semibold text-center">Attendance</h4></button>
+            </div>
+        </div>
+    `;
+}
+
+// ============================================
+// SIDEBAR FUNCTIONS
+// ============================================
+
+function updateSidebar(role) {
+    const nav = document.getElementById('sidebar-nav');
+    const settingsNav = document.getElementById('settings-nav');
+    const mobileNav = document.getElementById('mobile-nav');
+    
+    if (!nav) return;
+    
+    const sidebarConfig = {
+        superadmin: {
+            main: [
+                { icon: 'shield', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'building-2', label: 'Schools', section: 'schools' },
+                { icon: 'settings', label: 'Settings', section: 'settings' }
+            ],
+            settings: [
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        },
+        admin: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'users', label: 'Students', section: 'students' },
+                { icon: 'user-plus', label: 'Teachers', section: 'teachers' },
+                { icon: 'book-open', label: 'Classes', section: 'classes' },
+                { icon: 'clock', label: 'Duty', section: 'duty' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'Settings', section: 'settings' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        },
+        teacher: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'users', label: 'My Students', section: 'students' },
+                { icon: 'calendar-check', label: 'Attendance', section: 'attendance' },
+                { icon: 'trending-up', label: 'Grades', section: 'grades' },
+                { icon: 'clock', label: 'My Duty', section: 'duty' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'Settings', section: 'settings' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        },
+        parent: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'trending-up', label: 'Progress', section: 'progress' },
+                { icon: 'credit-card', label: 'Payments', section: 'payments' },
+                { icon: 'message-circle', label: 'Messages', section: 'chat' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'Settings', section: 'settings' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        },
+        student: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'trending-up', label: 'My Grades', section: 'grades' },
+                { icon: 'calendar-check', label: 'Attendance', section: 'attendance' },
+                { icon: 'message-circle', label: 'Chat', section: 'chat' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'Settings', section: 'settings' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
         }
+    };
+    
+    const config = sidebarConfig[role] || sidebarConfig.admin;
+    
+    nav.innerHTML = config.main.map(item => `
+        <a href="#" onclick="window.showDashboardSection('${item.section}')" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors sidebar-link" data-section="${item.section}">
+            <i data-lucide="${item.icon}" class="h-5 w-5"></i>
+            <span>${item.label}</span>
+        </a>
+    `).join('');
+    
+    settingsNav.innerHTML = config.settings.map(item => `
+        <a href="#" onclick="window.showDashboardSection('${item.section}')" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors sidebar-link" data-section="${item.section}">
+            <i data-lucide="${item.icon}" class="h-5 w-5"></i>
+            <span>${item.label}</span>
+        </a>
+    `).join('');
+    
+    if (mobileNav) {
+        mobileNav.innerHTML = config.main.slice(0, 4).map(item => `
+            <a href="#" onclick="window.showDashboardSection('${item.section}')" class="mobile-nav-item flex flex-col items-center justify-center flex-1 h-14 text-muted-foreground" data-section="${item.section}">
+                <i data-lucide="${item.icon}" class="h-5 w-5"></i>
+                <span class="text-xs mt-1">${item.label}</span>
+            </a>
+        `).join('');
     }
+    
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+    }
+}
+
+function updateUserInfo() {
+    const user = window.App.currentUser || {};
+    const name = user.name || 'User';
+    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    
+    const userInitials = document.getElementById('user-initials');
+    const userName = document.getElementById('user-name');
+    const dropdownName = document.getElementById('dropdown-user-name');
+    const dropdownEmail = document.getElementById('dropdown-user-email');
+    
+    if (userInitials) userInitials.textContent = initials;
+    if (userName) userName.textContent = name;
+    if (dropdownName) dropdownName.textContent = name;
+    if (dropdownEmail) dropdownEmail.textContent = user.email || '';
+}
+
+// ============================================
+// SECTION HANDLER
+// ============================================
+
+window.showDashboardSection = function(section) {
+    console.log('Showing section:', section);
+    
+    const dashboardContent = document.getElementById('dashboard-content');
+    if (!dashboardContent) return;
+    
+    const pageTitle = document.getElementById('page-title');
+    const sectionTitles = {
+        dashboard: 'Dashboard',
+        students: 'Students',
+        teachers: 'Teachers',
+        classes: 'Classes',
+        attendance: 'Attendance',
+        grades: 'Grades',
+        duty: 'Duty Management',
+        progress: 'Academic Progress',
+        payments: 'Payments',
+        chat: 'Messages',
+        settings: 'Settings',
+        help: 'Help Center',
+        schools: 'School Management'
+    };
+    
+    if (pageTitle) pageTitle.textContent = sectionTitles[section] || section;
+    
+    // Simple placeholder for sections
+    dashboardContent.innerHTML = `
+        <div class="text-center py-12">
+            <i data-lucide="loader-circle" class="h-12 w-12 mx-auto text-muted-foreground mb-4 animate-spin"></i>
+            <h2 class="text-2xl font-bold mb-2">${sectionTitles[section] || section}</h2>
+            <p class="text-muted-foreground">This section is under development. Check back soon!</p>
+            <button onclick="window.showDashboardSection('dashboard')" class="mt-6 px-4 py-2 bg-primary text-white rounded-lg">Back to Dashboard</button>
+        </div>
+    `;
+    
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+    }
+    
+    // Update active state in sidebar
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.classList.remove('bg-sidebar-accent', 'text-sidebar-accent-foreground');
+        if (link.dataset.section === section) {
+            link.classList.add('bg-sidebar-accent', 'text-sidebar-accent-foreground');
+        }
+    });
 };
 
 // ============================================
-// AUTH FUNCTIONS
+// AUTH FUNCTIONS (from your existing code)
 // ============================================
 
 window.openAuthModal = function(role, mode) {
@@ -158,10 +493,7 @@ window.openAuthModal = function(role, mode) {
     const titleEl = document.getElementById('auth-modal-title');
     const contentEl = document.getElementById('auth-modal-content');
     
-    if (!modal || !titleEl || !contentEl) {
-        console.error('Auth modal elements not found');
-        return;
-    }
+    if (!modal || !titleEl || !contentEl) return;
     
     titleEl.textContent = mode === 'signin' ? `Sign In as ${role}` : `Sign Up as ${role}`;
     contentEl.innerHTML = getAuthForm(role, mode);
@@ -246,7 +578,9 @@ window.openStudentLoginModal = function() {
     `;
     modal.classList.remove('hidden');
     
-    if (typeof lucide !== 'undefined') lucide.createIcons();
+    if (typeof lucide !== 'undefined' && lucide.createIcons) {
+        lucide.createIcons();
+    }
 };
 
 window.handleStudentLogin = async function() {
@@ -503,9 +837,9 @@ window.closeNameChangeModal = function() {
     if (modal) modal.classList.add('hidden');
 };
 
-window.closePasswordChangeModal = function() {
-    const modal = document.getElementById('password-change-modal');
-    if (modal) modal.classList.add('hidden');
+window.showNameChangeModal = function() {
+    const modal = document.getElementById('name-change-modal');
+    if (modal) modal.classList.remove('hidden');
 };
 
 window.processNameChange = function() {
@@ -518,7 +852,7 @@ window.logout = function() {
 };
 
 // ============================================
-// UI HELPER FUNCTIONS
+// UI HELPERS
 // ============================================
 
 window.showToast = function(message, type = 'info', duration = 3000) {
@@ -566,17 +900,11 @@ window.toggleUserMenu = function() {
 window.toggleTheme = function() {
     document.documentElement.classList.toggle('dark');
     localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-    if (typeof updateChartTheme === 'function') updateChartTheme();
 };
 
 window.toggleNotifications = function() {
     showToast('No new notifications', 'info');
 };
-
-// Load saved theme
-if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.add('dark');
-}
 
 // ============================================
 // TRIPLE-CLICK FOR SUPER ADMIN
@@ -623,29 +951,9 @@ if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') 
 })();
 
 // ============================================
-// AUTO-LOAD DASHBOARD AFTER LOGIN
+// START APPLICATION
 // ============================================
 
-(function() {
-    const token = localStorage.getItem('authToken');
-    const userRole = localStorage.getItem('userRole');
-    
-    if (token && userRole) {
-        setTimeout(() => {
-            const landingPage = document.getElementById('landing-page');
-            const dashboardContainer = document.getElementById('dashboard-container');
-            
-            if (landingPage && landingPage.style.display !== 'none') {
-                console.log('Auto-loading dashboard for role:', userRole);
-                if (landingPage) landingPage.style.display = 'none';
-                if (dashboardContainer) dashboardContainer.style.display = 'block';
-                showDashboard(userRole);
-            }
-        }, 100);
-    }
-})();
-
-// Start the application
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', window.initApplication);
 } else {
