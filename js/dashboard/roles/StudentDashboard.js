@@ -14,7 +14,7 @@ import { TableRenderer } from '../base/TableRenderer.js';
 import { formatDate, timeAgo, getInitials } from '../../core/utils.js';
 import { getGradeFromScore } from '../../constants/curriculum.js';
 
-class StudentDashboard extends BaseDashboard {
+export class StudentDashboard extends BaseDashboard {
     constructor(containerId) {
         super(containerId);
         this.grades = [];
