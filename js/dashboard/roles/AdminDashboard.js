@@ -1,5 +1,7 @@
 // js/dashboard/roles/AdminDashboard.js
 
+import BaseDashboard from '../BaseDashboard.js';
+
 import { BaseDashboard } from '../base/BaseDashboard.js';
 import { adminAPI } from '../../api/admin.js';
 import { store } from '../../core/store.js';
