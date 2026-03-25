@@ -1,50 +1,65 @@
-// js/base/BaseDashboard.js
+// js/dashboard/base/BaseDashboard.js
+// NO IMPORTS - plain JavaScript
 
-// Base class for all dashboards
-export default class BaseDashboard {
-    constructor(role) {
-        this.role = role;
-        this.sidebar = document.getElementById('sidebar-nav');
-        this.settingsNav = document.getElementById('settings-nav');
+class BaseDashboard {
+    constructor(containerId) {
+        this.containerId = containerId;
+        this.container = document.getElementById(containerId);
+        if (!this.container) {
+            console.error(`Container ${containerId} not found`);
+            return;
+        }
+        this.data = null;
+        this.stats = {};
+        this.charts = {};
+        this._isMounted = false;
     }
 
-    init() {
-        console.log(`Initializing ${this.role} dashboard`);
-        this.renderSidebar();
-        this.renderSettings();
+    async init() {
+        console.log(`🚀 Initializing ${this.constructor.name}...`);
+        this._isMounted = true;
+        await this.loadData();
+        this.render();
+        return this;
     }
 
-    renderSidebar() {
-        if (!this.sidebar) return;
-
-        const links = this.getSidebarLinks();
-        this.sidebar.innerHTML = links.map(link => `
-            <a href="${link.href}" class="block px-3 py-2 rounded hover:bg-accent hover:text-accent-foreground transition-colors">
-                ${link.label}
-            </a>
-        `).join('');
+    async loadData() {
+        // Override in child classes
     }
 
-    renderSettings() {
-        if (!this.settingsNav) return;
-
-        const settings = this.getSettingsLinks();
-        this.settingsNav.innerHTML = settings.map(link => `
-            <a href="${link.href}" class="block px-3 py-2 rounded hover:bg-accent hover:text-accent-foreground transition-colors">
-                ${link.label}
-            </a>
-        `).join('');
+    render() {
+        // Override in child classes
     }
 
-    getSidebarLinks() {
-        // Override in subclasses
-        return [];
+    async refresh() {
+        if (!this._isMounted) return;
+        await this.loadData();
+        this.render();
     }
 
-    getSettingsLinks() {
-        return [
-            { label: 'Profile', href: '#' },
-            { label: 'Change Password', href: '#' },
-        ];
+    showLoading() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.classList.remove('hidden');
+    }
+
+    hideLoading() {
+        const overlay = document.getElementById('loading-overlay');
+        if (overlay) overlay.classList.add('hidden');
+    }
+
+    showError(message) {
+        console.error(message);
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, 'error');
+        }
+    }
+
+    destroy() {
+        this._isMounted = false;
+        if (this.container) this.container.innerHTML = '';
     }
 }
+
+// Make it global
+window.BaseDashboard = BaseDashboard;
+console.log('✅ BaseDashboard loaded');
