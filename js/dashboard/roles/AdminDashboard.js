@@ -12,7 +12,7 @@ import { StatsRenderer } from '../base/StatsRenderer.js';
 import { TableRenderer } from '../base/TableRenderer.js';
 import { formatDate, timeAgo, getInitials } from '../../core/utils.js';
 
-export class AdminDashboard extends BaseDashboard {
+export export class AdminDashboard extends BaseDashboard {
     constructor(containerId) {
         super(containerId);
         this.pendingTeachers = [];
