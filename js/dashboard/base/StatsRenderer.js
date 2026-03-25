@@ -1,5 +1,5 @@
 // js/dashboard/base/StatsRenderer.js
-const StatsRenderer = {
+export const StatsRenderer = {
     render(container, stats, role = 'admin') {
         if (!container || !stats) return [];
         
