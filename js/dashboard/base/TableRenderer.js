@@ -1,5 +1,5 @@
 // js/dashboard/base/TableRenderer.js
-const TableRenderer = {
+export const TableRenderer = {
     render(container, config) {
         if (!container || !config.columns || !config.data) return null;
         
