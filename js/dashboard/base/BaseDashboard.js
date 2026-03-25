@@ -1,18 +1,20 @@
 // js/dashboard/base/BaseDashboard.js
-//import { store } from '../../core/store.js';
-//import { toast } from '../../ui/feedback/Toast.js';
-//import { eventBus, EVENTS } from '../../core/events.js';
 
-class BaseDashboard {
+import { toast } from '../../ui/feedback/Toast.js';
+import { eventBus, EVENTS } from '../../core/events.js';
+
+export class BaseDashboard {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
+
         if (!this.container) {
             throw new Error(`Container element with id "${containerId}" not found`);
         }
-        
+
         this.data = null;
         this.stats = {};
         this.charts = {};
+
         this._listeners = [];
         this._intervals = [];
         this._isMounted = false;
@@ -20,15 +22,24 @@ class BaseDashboard {
 
     async init() {
         console.log(`🚀 Initializing ${this.constructor.name}...`);
+
         this._isMounted = true;
-        this.renderLayout();
-        await this.loadData();
-        this.render();
-        this.attachEventListeners();
-        this.setupRealtimeSubscriptions();
+
+        try {
+            this.renderLayout();
+            await this.loadData();
+            this.render();
+            this.attachEventListeners();
+            this.setupRealtimeSubscriptions();
+        } catch (error) {
+            console.error(`${this.constructor.name} init failed:`, error);
+            this.showError(error.message);
+        }
+
         return this;
     }
 
+    // 🔴 MUST be implemented in child classes
     async loadData() {
         throw new Error('loadData() must be implemented by child class');
     }
@@ -37,24 +48,19 @@ class BaseDashboard {
         throw new Error('render() must be implemented by child class');
     }
 
-    renderLayout() {
-        // Optional: Override for custom layout
-    }
+    // 🟡 Optional overrides
+    renderLayout() {}
 
-    attachEventListeners() {
-        // Optional: Override for custom event listeners
-    }
+    attachEventListeners() {}
 
-    setupRealtimeSubscriptions() {
-        // Optional: Override for real-time subscriptions
-    }
+    setupRealtimeSubscriptions() {}
 
     async refresh() {
         if (!this._isMounted) return;
-        
-        console.log('🔄 Refreshing dashboard...');
+
+        console.log(`🔄 Refreshing ${this.constructor.name}...`);
         this.showLoading();
-        
+
         try {
             await this.loadData();
             this.render();
@@ -67,7 +73,10 @@ class BaseDashboard {
         }
     }
 
+    // 🔧 Helpers
     addListener(element, event, handler) {
+        if (!element) return;
+
         element.addEventListener(event, handler);
         this._listeners.push({ element, event, handler });
     }
@@ -79,38 +88,60 @@ class BaseDashboard {
     }
 
     showLoading() {
-        toast.loading(true);
+        if (toast?.loading) {
+            toast.loading(true);
+        }
     }
 
     hideLoading() {
-        toast.loading(false);
+        if (toast?.loading) {
+            toast.loading(false);
+        }
     }
 
     showError(message) {
-        toast.error(message);
-        eventBus.emit(EVENTS.ERROR_OCCURRED, { message, source: this.constructor.name });
+        console.error(`❌ ${this.constructor.name}:`, message);
+
+        if (toast?.error) {
+            toast.error(message);
+        }
+
+        if (eventBus && EVENTS?.ERROR_OCCURRED) {
+            eventBus.emit(EVENTS.ERROR_OCCURRED, {
+                message,
+                source: this.constructor.name
+            });
+        }
     }
 
     destroy() {
         console.log(`🧹 Destroying ${this.constructor.name}...`);
-        
+
+        // Remove event listeners
         this._listeners.forEach(({ element, event, handler }) => {
-            element.removeEventListener(event, handler);
+            if (element) {
+                element.removeEventListener(event, handler);
+            }
         });
         this._listeners = [];
-        
+
+        // Clear intervals
         this._intervals.forEach(interval => clearInterval(interval));
         this._intervals = [];
-        
+
+        // Destroy charts safely
         Object.values(this.charts).forEach(chart => {
-            if (chart && chart.destroy) chart.destroy();
+            if (chart && typeof chart.destroy === 'function') {
+                chart.destroy();
+            }
         });
         this.charts = {};
-        
-        this.container.innerHTML = '';
+
+        // Clear UI
+        if (this.container) {
+            this.container.innerHTML = '';
+        }
+
         this._isMounted = false;
     }
 }
-
-// Make it global
-window.BaseDashboard = BaseDashboard;
