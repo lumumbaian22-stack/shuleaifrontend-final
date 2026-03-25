@@ -1,143 +1,215 @@
-// js/main.js - APPLICATION ENTRY POINT ONLY
-console.log('🚀 main.js loaded');
+// js/main.js - ENTRY POINT ONLY
+console.log('main.js loaded');
 
-// Application state
-window.App = {
-    dashboard: null,
-    currentUser: null,
-    currentRole: null
-};
+// Store dashboard instance
+window.dashboardInstance = null;
 
-// Initialize application
-window.initApplication = async function() {
-    console.log('Initializing...');
+// Initialize app
+async function initApp() {
+    console.log('Initializing app...');
     
-    // Check if logged in
     const token = localStorage.getItem('authToken');
     const role = localStorage.getItem('userRole');
     
     if (token && role) {
-        try {
-            window.App.currentUser = JSON.parse(localStorage.getItem('user'));
-            window.App.currentRole = role;
-            
-            // Show dashboard
-            await showDashboard(role);
-        } catch (e) {
-            console.error('Error:', e);
-            showLandingPage();
+        console.log('User logged in as:', role);
+        
+        // Hide landing, show dashboard container
+        const landing = document.getElementById('landing-page');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        if (landing) landing.style.display = 'none';
+        if (dashboardContainer) dashboardContainer.style.display = 'block';
+        
+        // Create dashboard based on role
+        const DashboardClass = {
+            'admin': window.AdminDashboard,
+            'super_admin': window.SuperAdminDashboard,
+            'teacher': window.TeacherDashboard,
+            'parent': window.ParentDashboard,
+            'student': window.StudentDashboard
+        }[role];
+        
+        if (DashboardClass) {
+            window.dashboardInstance = new DashboardClass('dashboard-content');
+            await window.dashboardInstance.init();
+        } else {
+            console.error('No dashboard for role:', role);
+            document.getElementById('dashboard-content').innerHTML = '<div class="text-center py-12"><p class="text-red-500">Dashboard not available</p></div>';
         }
     } else {
-        showLandingPage();
+        console.log('Not logged in, showing landing page');
+        document.getElementById('landing-page').style.display = 'block';
+        document.getElementById('dashboard-container').style.display = 'none';
     }
-};
-
-function showLandingPage() {
-    const landing = document.getElementById('landing-page');
-    const dashboard = document.getElementById('dashboard-container');
-    if (landing) landing.style.display = 'block';
-    if (dashboard) dashboard.style.display = 'none';
 }
 
-async function showDashboard(role) {
-    console.log('Showing dashboard for:', role);
+// Auth modal functions (make them global)
+window.openAuthModal = function(role, mode) {
+    console.log('Open auth modal:', role, mode);
+    window.currentRole = role;
+    const modal = document.getElementById('auth-modal');
+    const titleEl = document.getElementById('auth-modal-title');
+    const contentEl = document.getElementById('auth-modal-content');
     
-    // Hide landing, show dashboard container
-    document.getElementById('landing-page').style.display = 'none';
-    document.getElementById('dashboard-container').style.display = 'block';
+    if (!modal || !titleEl || !contentEl) return;
     
-    // Create dashboard based on role
-    const DashboardClass = {
-        'admin': AdminDashboard,
-        'super_admin': SuperAdminDashboard,
-        'teacher': TeacherDashboard,
-        'parent': ParentDashboard,
-        'student': StudentDashboard
-    }[role];
+    titleEl.textContent = mode === 'signin' ? `Sign In as ${role}` : `Sign Up as ${role}`;
     
-    if (DashboardClass) {
-        window.App.dashboard = new DashboardClass('dashboard-content');
-        await window.App.dashboard.init();
-        window.dashboard = window.App.dashboard;
+    // Simple form
+    if (role === 'superadmin') {
+        contentEl.innerHTML = `
+            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded p-2 mb-2"></div>
+            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded p-2 mb-2"></div>
+            <div><input type="password" id="auth-secret-key" placeholder="Secret Key" class="w-full border rounded p-2"></div>
+        `;
+    } else if (mode === 'signin') {
+        contentEl.innerHTML = `
+            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded p-2 mb-2"></div>
+            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded p-2"></div>
+        `;
     } else {
-        console.error('No dashboard for role:', role);
-        document.getElementById('dashboard-content').innerHTML = '<div class="text-center py-12"><p class="text-red-500">Dashboard not available</p></div>';
+        contentEl.innerHTML = `<div><input type="text" id="auth-name" placeholder="Full Name" class="w-full border rounded p-2 mb-2"></div>
+            <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded p-2 mb-2"></div>
+            <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded p-2"></div>`;
     }
     
-    // Update sidebar and user info
-    if (typeof updateSidebar === 'function') updateSidebar(role);
-    if (typeof updateUserInfo === 'function') updateUserInfo();
-}
-
-// Update user info in header
-function updateUserInfo() {
-    const user = window.App.currentUser || {};
-    const name = user.name || 'User';
-    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-    
-    const els = ['user-initials', 'user-name', 'dropdown-user-name'];
-    els.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.textContent = id === 'user-initials' ? initials : name;
-    });
-    
-    const emailEl = document.getElementById('dropdown-user-email');
-    if (emailEl) emailEl.textContent = user.email || '';
-}
-
-// Simple sidebar update
-function updateSidebar(role) {
-    const nav = document.getElementById('sidebar-nav');
-    if (!nav) return;
-    
-    const items = role === 'admin' 
-        ? [{ icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' }, { icon: 'users', label: 'Students', section: 'students' }, { icon: 'user-plus', label: 'Teachers', section: 'teachers' }, { icon: 'settings', label: 'Settings', section: 'settings' }]
-        : [{ icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' }, { icon: 'settings', label: 'Settings', section: 'settings' }];
-    
-    nav.innerHTML = items.map(item => `
-        <a href="#" onclick="window.router?.navigate('${item.section}')" class="flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent sidebar-link" data-section="${item.section}">
-            <i data-lucide="${item.icon}" class="h-5 w-5"></i>
-            <span>${item.label}</span>
-        </a>
-    `).join('');
-    
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-}
-
-// Start
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.initApplication);
-} else {
-    window.initApplication();
-}
-
-// Global helpers
-window.showToast = function(msg, type = 'info') {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-    const colors = { success: 'bg-green-500', error: 'bg-red-500', info: 'bg-blue-500', warning: 'bg-amber-500' };
-    const toast = document.createElement('div');
-    toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 mb-2`;
-    toast.innerHTML = `<span>${msg}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    modal.classList.remove('hidden');
 };
 
-window.toggleMobileSidebar = () => {
-    document.getElementById('sidebar')?.classList.toggle('-translate-x-full');
-    document.getElementById('mobile-overlay')?.classList.toggle('hidden');
+window.openStudentLoginModal = function() {
+    window.currentRole = 'student';
+    const modal = document.getElementById('auth-modal');
+    const titleEl = document.getElementById('auth-modal-title');
+    const contentEl = document.getElementById('auth-modal-content');
+    
+    titleEl.textContent = 'Student Login';
+    contentEl.innerHTML = `
+        <div><input type="text" id="auth-elimuid" placeholder="ELIMUID" class="w-full border rounded p-2 mb-2"></div>
+        <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded p-2"></div>
+        <div class="mt-4 text-center text-sm text-muted-foreground">Default: Student123!</div>
+    `;
+    modal.classList.remove('hidden');
 };
 
-window.toggleTheme = () => {
-    document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+window.closeAuthModal = function() {
+    document.getElementById('auth-modal')?.classList.add('hidden');
 };
 
-window.logout = () => {
-    localStorage.clear();
-    window.location.reload();
+window.handleAuthSubmit = async function() {
+    const role = window.currentRole;
+    const isStudent = role === 'student';
+    const elimuid = isStudent ? document.getElementById('auth-elimuid')?.value : null;
+    const email = !isStudent ? document.getElementById('auth-email')?.value : null;
+    const password = document.getElementById('auth-password')?.value;
+    const secretKey = document.getElementById('auth-secret-key')?.value;
+    
+    if (!password) {
+        alert('Please enter password');
+        return;
+    }
+    
+    if (isStudent && !elimuid) {
+        alert('Please enter ELIMUID');
+        return;
+    }
+    
+    if (!isStudent && !email) {
+        alert('Please enter email');
+        return;
+    }
+    
+    if (role === 'superadmin' && !secretKey) {
+        alert('Secret key required');
+        return;
+    }
+    
+    showLoading();
+    
+    try {
+        let url, body;
+        if (isStudent) {
+            url = 'https://shuleaibackend-32h1.onrender.com/api/auth/student/login';
+            body = { elimuid, password };
+        } else if (role === 'superadmin') {
+            url = 'https://shuleaibackend-32h1.onrender.com/api/auth/super-admin/login';
+            body = { email, password, secretKey };
+        } else {
+            url = 'https://shuleaibackend-32h1.onrender.com/api/auth/login';
+            body = { email, password, role };
+        }
+        
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            localStorage.setItem('authToken', data.data.token);
+            localStorage.setItem('user', JSON.stringify(data.data.user));
+            localStorage.setItem('userRole', data.data.user.role);
+            if (data.data.school) localStorage.setItem('school', JSON.stringify(data.data.school));
+            
+            closeAuthModal();
+            window.location.reload();
+        } else {
+            alert(data.message || 'Login failed');
+        }
+    } catch (error) {
+        alert('Login failed: ' + error.message);
+    } finally {
+        hideLoading();
+    }
 };
 
-window.refreshData = () => {
-    if (window.App.dashboard) window.App.dashboard.refresh();
+window.handleStudentLogin = window.handleAuthSubmit;
+window.verifySchoolCodeInput = function() { alert('School code verification'); };
+window.showNameChangeModal = function() { alert('Name change feature'); };
+window.processNameChange = function() { alert('Processing...'); };
+window.showToast = function(msg, type) { alert(msg); };
+window.showLoading = function() { document.getElementById('loading-overlay')?.classList.remove('hidden'); };
+window.hideLoading = function() { document.getElementById('loading-overlay')?.classList.add('hidden'); };
+window.toggleMobileSidebar = function() { document.getElementById('sidebar')?.classList.toggle('-translate-x-full'); };
+window.toggleTheme = function() { document.documentElement.classList.toggle('dark'); };
+window.logout = function() { localStorage.clear(); window.location.reload(); };
+window.refreshData = function() { if (window.dashboardInstance) window.dashboardInstance.refresh(); };
+window.showDashboardSection = function(section) {
+    if (window.router?.navigate) window.router.navigate(section);
+    else console.log('Navigate to:', section);
 };
+
+// Add simple router
+window.router = {
+    navigate: function(section) {
+        console.log('Navigate to:', section);
+        if (window.dashboardInstance && window.dashboardInstance.showSection) {
+            window.dashboardInstance.showSection(section);
+        } else {
+            alert('Section: ' + section);
+        }
+    }
+};
+
+// Triple click for super admin
+let clickCount = 0;
+let clickTimer = null;
+document.addEventListener('DOMContentLoaded', function() {
+    const trigger = document.getElementById('secret-logo-trigger');
+    if (trigger) {
+        trigger.addEventListener('click', function() {
+            clickCount++;
+            if (clickTimer) clearTimeout(clickTimer);
+            clickTimer = setTimeout(() => clickCount = 0, 2000);
+            if (clickCount === 3) {
+                const card = document.getElementById('superadmin-role-card');
+                if (card) card.classList.remove('hidden');
+                clickCount = 0;
+            }
+        });
+    }
+    
+    // Start app
+    initApp();
+});
