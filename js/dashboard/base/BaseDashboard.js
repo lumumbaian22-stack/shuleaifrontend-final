@@ -3,7 +3,7 @@ import { store } from '../../core/store.js';
 import { toast } from '../../ui/feedback/Toast.js';
 import { eventBus, EVENTS } from '../../core/events.js';
 
-class BaseDashboard {
+export class BaseDashboard {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         if (!this.container) {
@@ -111,5 +111,3 @@ class BaseDashboard {
         this._isMounted = false;
     }
 }
-
-window.BaseDashboard = BaseDashboard;
