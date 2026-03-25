@@ -1,9 +1,9 @@
 // js/dashboard/base/BaseDashboard.js
-import { store } from '../../core/store.js';
-import { toast } from '../../ui/feedback/Toast.js';
-import { eventBus, EVENTS } from '../../core/events.js';
+//import { store } from '../../core/store.js';
+//import { toast } from '../../ui/feedback/Toast.js';
+//import { eventBus, EVENTS } from '../../core/events.js';
 
-export class BaseDashboard {
+class BaseDashboard {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         if (!this.container) {
@@ -111,3 +111,6 @@ export class BaseDashboard {
         this._isMounted = false;
     }
 }
+
+// Make it global
+window.BaseDashboard = BaseDashboard;
