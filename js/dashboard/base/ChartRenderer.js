@@ -1,5 +1,5 @@
 // js/dashboard/base/ChartRenderer.js
-const ChartRenderer = {
+export const ChartRenderer = {
     render(container, chartData, type = 'line') {
         if (!container || !chartData) return null;
         
