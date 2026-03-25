@@ -1,6 +1,11 @@
 // js/dashboard/index.js
 import { store } from '../core/store.js';
 import { ROLES } from '../constants/roles.js';
+import SuperAdminDashboard from './roles/SuperAdminDashboard.js';
+import AdminDashboard from './roles/AdminDashboard.js';
+import TeacherDashboard from './roles/TeacherDashboard.js';
+import ParentDashboard from './roles/ParentDashboard.js';
+import StudentDashboard from './roles/StudentDashboard.js';
 
 class DashboardFactory {
     static create(role, containerId) {
@@ -32,7 +37,7 @@ class DashboardFactory {
                 throw new Error(`Invalid role: ${role}`);
         }
         
-        // Store reference globally
+        // Store reference globally (optional)
         window.dashboard = dashboard;
         
         return dashboard;
@@ -47,5 +52,8 @@ class DashboardFactory {
     }
 }
 
-// Export for use
+// Export for use in main.js
+export default DashboardFactory;
+
+// Also attach to window for global access (if needed)
 window.DashboardFactory = DashboardFactory;
