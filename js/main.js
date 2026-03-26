@@ -1,94 +1,61 @@
-// js/main.js - COMPLETE WORKING VERSION
+// js/main.js - ENTRY POINT ONLY
 console.log('🚀 main.js loaded');
 
-// ============================================
-// DASHBOARD LOADER (NO RELOAD)
-// ============================================
-
-async function loadDashboard(role) {
-    console.log('Loading dashboard for role:', role);
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOM ready, checking for existing session...');
     
-    // Normalize role
-    let normalizedRole = role;
-    if (role === 'super_admin') normalizedRole = 'superadmin';
+    // Check if user is already logged in
+    const user = store.getUser();
+    const token = store.getToken();
+    const role = localStorage.getItem('userRole');
     
-    // Hide landing, show dashboard container
-    const landing = document.getElementById('landing-page');
-    const dashboardContainer = document.getElementById('dashboard-container');
-    if (landing) landing.style.display = 'none';
-    if (dashboardContainer) dashboardContainer.style.display = 'block';
+    console.log('Existing session:', { hasUser: !!user, hasToken: !!token, role });
     
-    // Get dashboard class
-    let DashboardClass = null;
-    if (normalizedRole === 'admin') DashboardClass = window.AdminDashboard;
-    else if (normalizedRole === 'superadmin') DashboardClass = window.SuperAdminDashboard;
-    else if (normalizedRole === 'teacher') DashboardClass = window.TeacherDashboard;
-    else if (normalizedRole === 'parent') DashboardClass = window.ParentDashboard;
-    else if (normalizedRole === 'student') DashboardClass = window.StudentDashboard;
-    
-    if (DashboardClass) {
+    if (user && token && role) {
+        console.log('Found existing session, loading dashboard...');
+        
+        // Hide landing, show dashboard
+        document.getElementById('landing-page').style.display = 'none';
+        document.getElementById('dashboard-container').style.display = 'block';
+        
+        // Load dashboard
         try {
-            window.dashboard = new DashboardClass('dashboard-content');
-            await window.dashboard.init();
-            console.log('✅ Dashboard loaded successfully');
-            return true;
+            await loadDashboard(role);
+            console.log('Dashboard loaded successfully');
         } catch (error) {
-            console.error('Dashboard error:', error);
+            console.error('Failed to load dashboard:', error);
             document.getElementById('dashboard-content').innerHTML = `
                 <div class="text-center py-12">
                     <p class="text-red-500">Failed to load dashboard: ${error.message}</p>
                     <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
                 </div>
             `;
-            return false;
         }
     } else {
-        console.error('No dashboard class for role:', normalizedRole);
-        document.getElementById('dashboard-content').innerHTML = `
-            <div class="text-center py-12">
-                <p class="text-red-500">Dashboard not available for role: ${role}</p>
-                <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
-            </div>
-        `;
-        return false;
-    }
-}
-
-// ============================================
-// INITIALIZE APP (CHECK EXISTING SESSION)
-// ============================================
-
-async function initApp() {
-    console.log('Initializing app...');
-
-    const token = localStorage.getItem('authToken');
-    const role = localStorage.getItem('userRole');
-
-    if (token && role) {
-        console.log('Already logged in as:', role);
-        await loadDashboard(role);
-    } else {
-        console.log('Not logged in, showing landing page');
+        console.log('No existing session, showing landing page');
         document.getElementById('landing-page').style.display = 'block';
         document.getElementById('dashboard-container').style.display = 'none';
     }
-}
+});
 
 // ============================================
-// AUTH MODAL FUNCTIONS
+// AUTH MODAL FUNCTIONS (Global)
 // ============================================
 
 window.openAuthModal = function(role, mode) {
     console.log('Open auth modal:', role, mode);
     window.currentRole = role;
+    window.currentMode = mode;
+    
     const modal = document.getElementById('auth-modal');
     const titleEl = document.getElementById('auth-modal-title');
     const contentEl = document.getElementById('auth-modal-content');
-
+    
     if (!modal || !titleEl || !contentEl) return;
-
+    
     titleEl.textContent = mode === 'signin' ? `Sign In as ${role}` : `Sign Up as ${role}`;
-
+    
     if (role === 'superadmin') {
         contentEl.innerHTML = `
             <div><input type="email" id="auth-email" placeholder="Email" class="w-full border rounded-lg p-2 mb-2"></div>
@@ -107,16 +74,18 @@ window.openAuthModal = function(role, mode) {
             <div><input type="password" id="auth-password" placeholder="Password" class="w-full border rounded-lg p-2"></div>
         `;
     }
-
+    
     modal.classList.remove('hidden');
 };
 
 window.openStudentLoginModal = function() {
     window.currentRole = 'student';
+    window.currentMode = 'signin';
+    
     const modal = document.getElementById('auth-modal');
     const titleEl = document.getElementById('auth-modal-title');
     const contentEl = document.getElementById('auth-modal-content');
-
+    
     titleEl.textContent = 'Student Login';
     contentEl.innerHTML = `
         <div><input type="text" id="auth-elimuid" placeholder="ELIMUID" class="w-full border rounded-lg p-2 mb-2"></div>
@@ -130,141 +99,46 @@ window.closeAuthModal = function() {
     document.getElementById('auth-modal')?.classList.add('hidden');
 };
 
-// ============================================
-// LOGIN HANDLER (NO PAGE REFRESH)
-// ============================================
-
 window.handleAuthSubmit = async function() {
     const role = window.currentRole;
+    const mode = window.currentMode;
     const isStudent = role === 'student';
-    const elimuid = isStudent ? document.getElementById('auth-elimuid')?.value : null;
-    const email = !isStudent ? document.getElementById('auth-email')?.value : null;
-    const password = document.getElementById('auth-password')?.value;
-    const secretKey = document.getElementById('auth-secret-key')?.value;
-
-    if (!password) {
-        alert('Please enter password');
-        return;
-    }
-    if (isStudent && !elimuid) {
-        alert('Please enter ELIMUID');
-        return;
-    }
-    if (!isStudent && !email) {
-        alert('Please enter email');
-        return;
-    }
-    if (role === 'superadmin' && !secretKey) {
-        alert('Secret key required');
-        return;
-    }
-
-    window.showLoading();
-
-    try {
-        let url, body;
-        if (isStudent) {
-            url = 'https://shuleaibackend-32h1.onrender.com/api/auth/student/login';
-            body = { elimuid, password };
-        } else if (role === 'superadmin') {
-            url = 'https://shuleaibackend-32h1.onrender.com/api/auth/super-admin/login';
-            body = { email, password, secretKey };
-        } else {
-            url = 'https://shuleaibackend-32h1.onrender.com/api/auth/login';
-            body = { email, password, role };
-        }
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            // Save to localStorage
-            localStorage.setItem('authToken', data.data.token);
-            localStorage.setItem('user', JSON.stringify(data.data.user));
-            localStorage.setItem('userRole', data.data.user.role);
-            if (data.data.school) {
-                localStorage.setItem('school', JSON.stringify(data.data.school));
-            }
-
-            // Close modal
-            window.closeAuthModal();
-
-            // Load dashboard directly (NO PAGE REFRESH)
-            await loadDashboard(data.data.user.role);
-
-        } else {
-            alert(data.message || 'Login failed');
-        }
-    } catch (error) {
-        alert('Login failed: ' + error.message);
-    } finally {
-        window.hideLoading();
-    }
-};
-
-window.handleStudentLogin = window.handleAuthSubmit;
-
-// ============================================
-// VERIFY SCHOOL CODE
-// ============================================
-
-window.verifySchoolCodeInput = async function() {
-    const code = document.getElementById('auth-school-code')?.value;
-    if (!code) {
-        alert('Please enter a school code');
-        return;
-    }
     
-    window.showLoading();
-    try {
-        const response = await fetch('https://shuleaibackend-32h1.onrender.com/api/auth/verify-school', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ schoolCode: code })
-        });
-        
-        const data = await response.json();
-        const statusDiv = document.getElementById('school-verify-status');
-        
-        if (data.success) {
-            statusDiv.className = 'text-xs mt-1 p-2 bg-green-100 text-green-700 rounded-lg';
-            statusDiv.innerHTML = `✅ Verified: ${data.data.schoolName}`;
-            statusDiv.classList.remove('hidden');
-            alert(`School found: ${data.data.schoolName}`);
+    if (mode === 'signin') {
+        if (isStudent) {
+            const elimuid = document.getElementById('auth-elimuid')?.value;
+            const password = document.getElementById('auth-password')?.value;
+            if (!elimuid || !password) {
+                alert('Please enter ELIMUID and password');
+                return;
+            }
+            await handleStudentLogin(elimuid, password);
         } else {
-            throw new Error(data.message);
+            const email = document.getElementById('auth-email')?.value;
+            const password = document.getElementById('auth-password')?.value;
+            const secretKey = document.getElementById('auth-secret-key')?.value;
+            
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+            if (role === 'superadmin' && !secretKey) {
+                alert('Secret key required');
+                return;
+            }
+            
+            await handleLogin(role, email, password, secretKey);
         }
-    } catch (error) {
-        const statusDiv = document.getElementById('school-verify-status');
-        statusDiv.className = 'text-xs mt-1 p-2 bg-red-100 text-red-700 rounded-lg';
-        statusDiv.innerHTML = `❌ ${error.message}`;
-        statusDiv.classList.remove('hidden');
-        alert(error.message);
-    } finally {
-        window.hideLoading();
+        window.closeAuthModal();
+    } else {
+        // Signup - implement if needed
+        alert('Signup feature coming soon');
     }
 };
 
 // ============================================
-// UI HELPER FUNCTIONS
+// UI HELPERS
 // ============================================
-
-window.showNameChangeModal = function() {
-    alert('Name change feature coming soon');
-};
-
-window.processNameChange = function() {
-    alert('Processing...');
-};
-
-window.showToast = function(msg, type) {
-    alert(msg);
-};
 
 window.showLoading = function() {
     document.getElementById('loading-overlay')?.classList.remove('hidden');
@@ -274,48 +148,18 @@ window.hideLoading = function() {
     document.getElementById('loading-overlay')?.classList.add('hidden');
 };
 
-window.toggleMobileSidebar = function() {
-    document.getElementById('sidebar')?.classList.toggle('-translate-x-full');
-    document.getElementById('mobile-overlay')?.classList.toggle('hidden');
-};
-
-window.toggleUserMenu = function() {
-    document.getElementById('user-menu')?.classList.toggle('hidden');
-};
-
-window.toggleTheme = function() {
-    document.documentElement.classList.toggle('dark');
-    localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-};
-
-window.toggleNotifications = function() {
-    alert('No new notifications');
+window.showToast = function(message, type = 'info') {
+    alert(message); // Simple fallback
 };
 
 window.logout = function() {
-    localStorage.clear();
+    store.clear();
     window.location.reload();
 };
 
 window.refreshData = function() {
-    if (window.dashboard) window.dashboard.refresh();
-};
-
-window.showDashboardSection = function(section) {
-    if (window.dashboard && window.dashboard.showSection) {
-        window.dashboard.showSection(section);
-    } else if (window.router && window.router.navigate) {
-        window.router.navigate(section);
-    } else {
-        console.log('Navigate to:', section);
-        alert('Section: ' + section);
-    }
-};
-
-// Simple router
-window.router = {
-    navigate: function(section) {
-        window.showDashboardSection(section);
+    if (window.dashboard && window.dashboard.refresh) {
+        window.dashboard.refresh();
     }
 };
 
@@ -326,10 +170,10 @@ window.router = {
 let clickCount = 0;
 let clickTimer = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+const setupSuperAdminTrigger = () => {
     const trigger = document.getElementById('secret-logo-trigger');
     if (trigger) {
-        trigger.addEventListener('click', function() {
+        trigger.addEventListener('click', () => {
             clickCount++;
             if (clickTimer) clearTimeout(clickTimer);
             clickTimer = setTimeout(() => clickCount = 0, 2000);
@@ -341,13 +185,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Load saved theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-    }
-    
-    // Start the app
-    initApp();
-});
+};
+
+// Initialize trigger
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupSuperAdminTrigger);
+} else {
+    setupSuperAdminTrigger();
+}
