@@ -1,6 +1,4 @@
 // js/dashboard/base/BaseDashboard.js
-// NO IMPORTS - plain JavaScript
-
 class BaseDashboard {
     constructor(containerId) {
         this.containerId = containerId;
@@ -60,6 +58,5 @@ class BaseDashboard {
     }
 }
 
-// Make it global
 window.BaseDashboard = BaseDashboard;
 console.log('✅ BaseDashboard loaded');
