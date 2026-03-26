@@ -1,13 +1,15 @@
 // js/dashboard/base/BaseDashboard.js
-class BaseDashboard {
-    constructor(containerId) {
+export class BaseDashboard {
+    constructor(containerId = 'dashboard-content') {
         this.containerId = containerId;
         this.container = document.getElementById(containerId);
+        
         if (!this.container) {
             console.error(`Container ${containerId} not found`);
             return;
         }
-        this.data = null;
+        
+        this.data = { stats: [], charts: [], table: [] };
         this.stats = {};
         this.charts = {};
         this._isMounted = false;
@@ -47,9 +49,7 @@ class BaseDashboard {
 
     showError(message) {
         console.error(message);
-        if (typeof window.showToast === 'function') {
-            window.showToast(message, 'error');
-        }
+        if (window.showToast) window.showToast(message, 'error');
     }
 
     destroy() {
@@ -57,6 +57,3 @@ class BaseDashboard {
         if (this.container) this.container.innerHTML = '';
     }
 }
-
-window.BaseDashboard = BaseDashboard;
-console.log('✅ BaseDashboard loaded');
