@@ -1,7 +1,11 @@
 // js/dashboard/index.js
-console.log('🏭 dashboard/index.js loaded');
+import { AdminDashboard } from './roles/AdminDashboard.js';
+import { TeacherDashboard } from './roles/TeacherDashboard.js';
+import { ParentDashboard } from './roles/ParentDashboard.js';
+import { StudentDashboard } from './roles/StudentDashboard.js';
+import { SuperAdminDashboard } from './roles/SuperAdminDashboard.js';
 
-function loadDashboard(role) {
+export async function loadDashboard(role) {
     console.log('Loading dashboard for role:', role);
     
     let dashboard = null;
@@ -25,5 +29,3 @@ function loadDashboard(role) {
     window.dashboard = dashboard;
     return dashboard.init();
 }
-
-window.loadDashboard = loadDashboard;
