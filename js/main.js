@@ -1,9 +1,10 @@
-// js/main.js - ENTRY POINT ONLY
+// js/main.js - ENTRY POINT
 import { store } from './core/store.js';
 import { getInitials, timeAgo, formatDate, escapeHtml } from './core/utils.js';
 
 console.log('🚀 main.js loaded');
 
+// Make utilities globally available
 window.getInitials = getInitials;
 window.timeAgo = timeAgo;
 window.formatDate = formatDate;
@@ -94,7 +95,7 @@ function updateUserInfo() {
 }
 
 // ============================================
-// LOAD DASHBOARD (NO RELOAD)
+// LOAD DASHBOARD (EXPORTED GLOBALLY)
 // ============================================
 
 async function loadDashboard(role) {
@@ -113,6 +114,10 @@ async function loadDashboard(role) {
     const DashboardClass = roleMap[role];
     
     if (DashboardClass) {
+        // Destroy previous dashboard if exists
+        if (window.dashboard && window.dashboard.destroy) {
+            window.dashboard.destroy();
+        }
         window.dashboard = new DashboardClass('dashboard-content');
         await window.dashboard.init();
         console.log('✅ Dashboard loaded');
@@ -121,6 +126,9 @@ async function loadDashboard(role) {
         document.getElementById('dashboard-content').innerHTML = `<div class="text-center py-12 text-red-500">Dashboard not available</div>`;
     }
 }
+
+// EXPOSE GLOBALLY so login.js can call it
+window.loadDashboard = loadDashboard;
 
 // ============================================
 // ROUTER
@@ -135,7 +143,7 @@ window.router = {
 };
 
 // ============================================
-// INIT - NO RELOAD LOOP
+// INIT
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -155,7 +163,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================
-// AUTH MODAL
+// AUTH MODAL (direct API calls for simplicity)
 // ============================================
 
 window.openAuthModal = function(role, mode) {
@@ -235,7 +243,7 @@ window.handleAuthSubmit = async function() {
             if (data.data.school) localStorage.setItem('school', JSON.stringify(data.data.school));
             
             window.closeAuthModal();
-            // NO RELOAD - just load dashboard
+            // Switch UI and load dashboard without reload
             document.getElementById('landing-page').style.display = 'none';
             document.getElementById('dashboard-container').style.display = 'block';
             await loadDashboard(data.data.user.role);
@@ -261,10 +269,9 @@ window.toggleMobileSidebar = () => document.getElementById('sidebar')?.classList
 window.toggleTheme = () => document.documentElement.classList.toggle('dark');
 window.toggleUserMenu = () => document.getElementById('user-menu')?.classList.toggle('hidden');
 window.showDashboardSection = (s) => window.router.navigate(s);
-window.refreshData = () => window.dashboard?.refresh();
 
 // ============================================
-// TRIPLE CLICK
+// TRIPLE CLICK FOR SUPER ADMIN
 // ============================================
 
 let clickCount = 0, clickTimer;
