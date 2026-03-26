@@ -1,38 +1,29 @@
-import SuperAdminDashboard from './roles/SuperAdminDashboard.js';
-import AdminDashboard from './roles/AdminDashboard.js';
-import TeacherDashboard from './roles/TeacherDashboard.js';
-import ParentDashboard from './roles/ParentDashboard.js';
-import StudentDashboard from './roles/StudentDashboard.js';
-import { ROLES } from '../constants/roles.js';
-import { store } from '../core/store.js';
+// js/dashboard/index.js
+console.log('🏭 dashboard/index.js loaded');
 
-class DashboardFactory {
-    static create(role, containerId) {
-        const user = store.getState('user');
-        if (!user) throw new Error('User not authenticated');
-
-        let dashboard;
-        switch (role) {
-            case ROLES.SUPER_ADMIN: dashboard = new SuperAdminDashboard(containerId); break;
-            case ROLES.ADMIN:       dashboard = new AdminDashboard(containerId); break;
-            case ROLES.TEACHER:     dashboard = new TeacherDashboard(containerId); break;
-            case ROLES.PARENT:      dashboard = new ParentDashboard(containerId); break;
-            case ROLES.STUDENT:     dashboard = new StudentDashboard(containerId); break;
-            default: throw new Error(`Invalid role: ${role}`);
-        }
-
-        window.dashboard = dashboard;
-        return dashboard;
+function loadDashboard(role) {
+    console.log('Loading dashboard for role:', role);
+    
+    let dashboard = null;
+    const containerId = 'dashboard-content';
+    
+    if (role === 'admin') {
+        dashboard = new AdminDashboard(containerId);
+    } else if (role === 'teacher') {
+        dashboard = new TeacherDashboard(containerId);
+    } else if (role === 'parent') {
+        dashboard = new ParentDashboard(containerId);
+    } else if (role === 'student') {
+        dashboard = new StudentDashboard(containerId);
+    } else if (role === 'super_admin' || role === 'superadmin') {
+        dashboard = new SuperAdminDashboard(containerId);
+    } else {
+        console.error('Unknown role:', role);
+        return null;
     }
-
-    static isValidRole(role) {
-        return Object.values(ROLES).includes(role);
-    }
-
-    static getAvailableRoles() {
-        return Object.values(ROLES);
-    }
+    
+    window.dashboard = dashboard;
+    return dashboard.init();
 }
 
-export default DashboardFactory;
-window.DashboardFactory = DashboardFactory;
+window.loadDashboard = loadDashboard;
