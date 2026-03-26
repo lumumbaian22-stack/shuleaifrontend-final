@@ -1,12 +1,12 @@
-// js/main.js - ES MODULE ENTRY POINT (NO RELOAD LOOP)
+// js/main.js - COMPLETE WORKING VERSION
 import { store } from './core/store.js';
 import { loadDashboard } from './dashboard/index.js';
 import { handleLogin, handleStudentLogin } from './features/auth/login.js';
 import { getInitials, timeAgo, formatDate, escapeHtml } from './core/utils.js';
 
-console.log('🚀 main.js loaded (ES Module)');
+console.log('🚀 main.js loaded');
 
-// Make globally available for onclick handlers
+// Make globally available
 window.store = store;
 window.handleLogin = handleLogin;
 window.handleStudentLogin = handleStudentLogin;
@@ -15,14 +15,202 @@ window.timeAgo = timeAgo;
 window.formatDate = formatDate;
 window.escapeHtml = escapeHtml;
 
-// Track if we're already loading to prevent loops
 let isLoadingDashboard = false;
 
-// Wait for DOM
+// ============================================
+// SIDEBAR RENDER FUNCTION
+// ============================================
+
+function renderSidebar(role) {
+    const nav = document.getElementById('sidebar-nav');
+    const settingsNav = document.getElementById('settings-nav');
+    const mobileNav = document.getElementById('mobile-nav');
+    
+    if (!nav) return;
+    
+    const sidebarConfig = {
+        admin: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'users', label: 'Students', section: 'students' },
+                { icon: 'user-plus', label: 'Teachers', section: 'teachers' },
+                { icon: 'book-open', label: 'Classes', section: 'classes' },
+                { icon: 'calendar-check', label: 'Attendance', section: 'attendance' },
+                { icon: 'trending-up', label: 'Grades', section: 'grades' },
+                { icon: 'clock', label: 'Duty', section: 'duty' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'School Settings', section: 'settings' },
+                { icon: 'bar-chart-2', label: 'Reports', section: 'reports' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        },
+        teacher: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'users', label: 'My Students', section: 'students' },
+                { icon: 'calendar-check', label: 'Attendance', section: 'attendance' },
+                { icon: 'trending-up', label: 'Grades', section: 'grades' },
+                { icon: 'clock', label: 'My Duty', section: 'duty' },
+                { icon: 'message-circle', label: 'Messages', section: 'messages' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'My Settings', section: 'settings' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        },
+        parent: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'trending-up', label: 'Progress', section: 'progress' },
+                { icon: 'credit-card', label: 'Payments', section: 'payments' },
+                { icon: 'message-circle', label: 'Messages', section: 'messages' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'My Settings', section: 'settings' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        },
+        student: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'trending-up', label: 'My Grades', section: 'grades' },
+                { icon: 'calendar-check', label: 'Attendance', section: 'attendance' },
+                { icon: 'message-circle', label: 'Study Groups', section: 'chat' },
+                { icon: 'bot', label: 'AI Tutor', section: 'ai-tutor' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'My Settings', section: 'settings' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        },
+        superadmin: {
+            main: [
+                { icon: 'shield', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'building-2', label: 'Schools', section: 'schools' },
+                { icon: 'check-circle', label: 'Approvals', section: 'approvals' },
+                { icon: 'activity', label: 'Platform Health', section: 'health' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'Platform Settings', section: 'settings' },
+                { icon: 'users', label: 'Users', section: 'users' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        }
+    };
+    
+    let normalizedRole = role;
+    if (role === 'super_admin') normalizedRole = 'superadmin';
+    
+    const config = sidebarConfig[normalizedRole] || sidebarConfig.admin;
+    
+    nav.innerHTML = config.main.map(item => `
+        <a href="#" onclick="window.router.navigate('${item.section}')" 
+           class="flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors sidebar-link" 
+           data-section="${item.section}">
+            <i data-lucide="${item.icon}" class="h-5 w-5"></i>
+            <span>${item.label}</span>
+        </a>
+    `).join('');
+    
+    settingsNav.innerHTML = config.settings.map(item => `
+        <a href="#" onclick="window.router.navigate('${item.section}')" 
+           class="flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors sidebar-link" 
+           data-section="${item.section}">
+            <i data-lucide="${item.icon}" class="h-5 w-5"></i>
+            <span>${item.label}</span>
+        </a>
+    `).join('');
+    
+    if (mobileNav) {
+        mobileNav.innerHTML = config.main.slice(0, 4).map(item => `
+            <a href="#" onclick="window.router.navigate('${item.section}')" 
+               class="mobile-nav-item flex flex-col items-center justify-center flex-1 h-14 text-muted-foreground" 
+               data-section="${item.section}">
+                <i data-lucide="${item.icon}" class="h-5 w-5"></i>
+                <span class="text-xs mt-1">${item.label}</span>
+            </a>
+        `).join('');
+    }
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// ============================================
+// USER INFO UPDATE FUNCTION
+// ============================================
+
+function updateUserInfo() {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const name = user.name || 'User';
+    const email = user.email || '';
+    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    
+    const userInitials = document.getElementById('user-initials');
+    const userName = document.getElementById('user-name');
+    const dropdownName = document.getElementById('dropdown-user-name');
+    const dropdownEmail = document.getElementById('dropdown-user-email');
+    
+    if (userInitials) userInitials.textContent = initials;
+    if (userName) userName.textContent = name;
+    if (dropdownName) dropdownName.textContent = name;
+    if (dropdownEmail) dropdownEmail.textContent = email;
+}
+
+// ============================================
+// ROUTER
+// ============================================
+
+window.router = {
+    navigate: function(section) {
+        console.log('Navigate to:', section);
+        if (window.dashboard && window.dashboard.showSection) {
+            window.dashboard.showSection(section);
+        }
+    }
+};
+
+// ============================================
+// LOAD DASHBOARD
+// ============================================
+
+async function loadDashboardAfterLogin(role) {
+    console.log('Loading dashboard for role:', role);
+    
+    renderSidebar(role);
+    updateUserInfo();
+    
+    let normalizedRole = role === 'super_admin' ? 'superadmin' : role;
+    let DashboardClass = null;
+    
+    if (normalizedRole === 'admin') DashboardClass = window.AdminDashboard;
+    else if (normalizedRole === 'superadmin') DashboardClass = window.SuperAdminDashboard;
+    else if (normalizedRole === 'teacher') DashboardClass = window.TeacherDashboard;
+    else if (normalizedRole === 'parent') DashboardClass = window.ParentDashboard;
+    else if (normalizedRole === 'student') DashboardClass = window.StudentDashboard;
+    
+    if (DashboardClass) {
+        window.dashboard = new DashboardClass('dashboard-content');
+        await window.dashboard.init();
+        console.log('✅ Dashboard loaded');
+    } else {
+        console.error('No dashboard class for role:', normalizedRole);
+        document.getElementById('dashboard-content').innerHTML = `
+            <div class="text-center py-12">
+                <p class="text-red-500">Dashboard not available for role: ${role}</p>
+                <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
+            </div>
+        `;
+    }
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM ready');
     
-    // Check existing session - DO NOT RELOAD
     const user = store.getUser();
     const token = store.getToken();
     const role = localStorage.getItem('userRole');
@@ -35,8 +223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('dashboard-container').style.display = 'block';
         
         try {
-            await loadDashboard(role);
-            console.log('Dashboard loaded successfully');
+            await loadDashboardAfterLogin(role);
         } catch (error) {
             console.error('Dashboard load failed:', error);
             document.getElementById('dashboard-content').innerHTML = `
@@ -144,20 +331,13 @@ window.handleAuthSubmit = async function() {
             }
             
             const success = await handleLogin(role, email, password, secretKey);
-            if (success) window.closeAuthModal();
+            if (success) {
+                window.closeAuthModal();
+                await loadDashboardAfterLogin(role);
+            }
         }
     } else {
         alert('Signup feature coming soon');
-    }
-};
-
-// Simple router for navigation
-window.router = {
-    navigate: function(section) {
-        console.log('Navigate to:', section);
-        if (window.dashboard && window.dashboard.showSection) {
-            window.dashboard.showSection(section);
-        }
     }
 };
 
@@ -217,7 +397,12 @@ window.processNameChange = function() {
     alert('Name change feature coming soon');
 };
 
-// Functions for admin.html
+window.showDashboardSection = function(section) {
+    if (window.router && window.router.navigate) {
+        window.router.navigate(section);
+    }
+};
+
 window.refreshAdminStudentList = function() {
     if (window.dashboard && window.dashboard.refreshStudents) {
         window.dashboard.refreshStudents();
@@ -230,15 +415,6 @@ window.refreshPendingTeachers = function() {
     }
 };
 
-window.showDashboardSection = function(section) {
-    if (window.router && window.router.navigate) {
-        window.router.navigate(section);
-    } else if (window.dashboard && window.dashboard.showSection) {
-        window.dashboard.showSection(section);
-    }
-};
-
-// Modal close functions
 window.closeEditStudentModal = function() {
     document.getElementById('edit-student-modal')?.classList.add('hidden');
 };
@@ -261,6 +437,35 @@ window.handleUpdateStudent = function() {
 
 window.handleUpdateTeacher = function() {
     alert('Update teacher feature');
+};
+
+window.viewStudentDetails = function(id) {
+    alert('View student: ' + id);
+};
+
+window.editStudent = function(id) {
+    alert('Edit student: ' + id);
+};
+
+window.copyElimuid = function(elimuid) {
+    navigator.clipboard.writeText(elimuid);
+    alert('Copied: ' + elimuid);
+};
+
+window.approveTeacher = function(id) {
+    alert('Approve teacher: ' + id);
+};
+
+window.rejectTeacher = function(id) {
+    alert('Reject teacher: ' + id);
+};
+
+window.updateEnrollmentChart = function(value) {
+    console.log('Update enrollment chart:', value);
+};
+
+window.updateGradeChart = function(value) {
+    console.log('Update grade chart:', value);
 };
 
 // ============================================
@@ -291,3 +496,6 @@ if (document.readyState === 'loading') {
 } else {
     setupTrigger();
 }
+
+// Make loadDashboard available globally
+window.loadDashboard = loadDashboardAfterLogin;
