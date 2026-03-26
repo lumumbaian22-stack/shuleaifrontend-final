@@ -737,108 +737,90 @@
     </div>
 
 <!-- ============================================ -->
-<!-- CORE - MUST LOAD FIRST -->
-<!-- ============================================ -->
-<script src="js/constants/index.js"></script>
-<script src="js/core/utils.js"></script>
-<script src="js/core/store.js"></script>
-<script src="js/core/events.js"></script>
-<script src="js/core/realtime.js"></script>
-<script src="js/core/router.js"></script>
-
-<!-- ============================================ -->
-<!-- API - MUST LOAD AFTER CORE -->
-<!-- ============================================ -->
-<script src="js/api/client.js"></script>
-<script src="js/api/auth.js"></script>
-<script src="js/api/admin.js"></script>
-<script src="js/api/superadmin.js"></script>
-<script src="js/api/teacher.js"></script>
-<script src="js/api/parent.js"></script>
-<script src="js/api/student.js"></script>
-<script src="js/api/duty.js"></script>
-<script src="js/api/upload.js"></script>
-
-<!-- ============================================ -->
-<!-- UI COMPONENTS -->
-<!-- ============================================ -->
-<script src="js/ui/components/Modal.js"></script>
-<script src="js/ui/feedback/Toast.js"></script>
-<script src="js/ui/layout/Sidebar.js"></script>
-<script src="js/ui/layout/Header.js"></script>
-<script src="js/ui/layout/Footer.js"></script>
-<script src="js/ui/layout/MobileNav.js"></script>
-
-<!-- ============================================ -->
-<!-- FEATURES -->
-<!-- ============================================ -->
-<script src="js/features/auth/login.js"></script>
-<script src="js/features/auth/signup.js"></script>
-<script src="js/features/auth/password.js"></script>
-<script src="js/features/auth/session.js"></script>
-<script src="js/features/curriculum/gradeCalculator.js"></script>
-<script src="js/features/curriculum/classGenerator.js"></script>
-<script src="js/features/curriculum/subjectManager.js"></script>
-<script src="js/features/classes/ClassManager.js"></script>
-<script src="js/features/classes/TeacherAssignment.js"></script>
-<script src="js/features/classes/StudentEnrollment.js"></script>
-<script src="js/features/students/StudentManager.js"></script>
-<script src="js/features/students/StudentDetails.js"></script>
-<script src="js/features/students/BulkUpload.js"></script>
-<script src="js/features/teachers/TeacherManager.js"></script>
-<script src="js/features/teachers/TeacherApproval.js"></script>
-<script src="js/features/teachers/TeacherDetails.js"></script>
-<script src="js/features/duty/DutyManager.js"></script>
-<script src="js/features/duty/DutyRoster.js"></script>
-<script src="js/features/duty/DutyPoints.js"></script>
-<script src="js/features/duty/FairnessReport.js"></script>
-<script src="js/features/grades/GradeEntry.js"></script>
-<script src="js/features/grades/GradeReport.js"></script>
-<script src="js/features/grades/Analytics.js"></script>
-<script src="js/features/attendance/AttendanceEntry.js"></script>
-<script src="js/features/attendance/AttendanceReport.js"></script>
-<script src="js/features/payments/PaymentManager.js"></script>
-<script src="js/features/payments/SubscriptionManager.js"></script>
-<script src="js/features/messages/ChatManager.js"></script>
-<script src="js/features/messages/ConversationList.js"></script>
-<script src="js/features/calendar/CalendarView.js"></script>
-<script src="js/features/calendar/EventManager.js"></script>
-
-<!-- ============================================ -->
-<!-- DASHBOARD CORE - MUST LOAD BEFORE ROLES -->
-<!-- ============================================ -->
-<script src="js/dashboard/base/ChartRenderer.js"></script>
-<script src="js/dashboard/base/StatsRenderer.js"></script>
-<script src="js/dashboard/base/TableRenderer.js"></script>
-<script src="js/dashboard/base/BaseDashboard.js"></script>
-
-<!-- ============================================ -->
-<!-- DASHBOARD ROLES -->
-<!-- ============================================ -->
-<script src="js/dashboard/roles/SuperAdminDashboard.js"></script>
-<script src="js/dashboard/roles/AdminDashboard.js"></script>
-<script src="js/dashboard/roles/TeacherDashboard.js"></script>
-<script src="js/dashboard/roles/ParentDashboard.js"></script>
-<script src="js/dashboard/roles/StudentDashboard.js"></script>
-
-<!-- ============================================ -->
-<!-- DASHBOARD FACTORY -->
-<!-- ============================================ -->
-<script src="js/dashboard/index.js"></script>
-
-<!-- ============================================ -->
-<!-- PAGES -->
-<!-- ============================================ -->
-<script src="js/pages/LandingPage.js"></script>
-<script src="js/pages/DashboardPage.js"></script>
-<script src="js/pages/ProfilePage.js"></script>
-<script src="js/pages/SettingsPage.js"></script>
-<script src="js/pages/HelpPage.js"></script>
-
-<!-- ============================================ -->
-<!-- MAIN - ALWAYS LAST -->
-<!-- ============================================ -->
-<script src="js/main.js"></script>
+    <!-- ALL JAVASCRIPT MODULES - NOW LOADED AS MODULES -->
+    <!-- ============================================ -->
+    
+    <!-- First: Constants and Core -->
+    <script type="module" src="js/constants/index.js"></script>
+    <script type="module" src="js/core/utils.js"></script>
+    <script type="module" src="js/core/store.js"></script>
+    <script type="module" src="js/core/events.js"></script>
+    <script type="module" src="js/core/realtime.js"></script>
+    <script type="module" src="js/core/router.js"></script>
+    
+    <!-- Then: API Layer -->
+    <script type="module" src="js/api/client.js"></script>
+    <script type="module" src="js/api/auth.js"></script>
+    <script type="module" src="js/api/admin.js"></script>
+    <script type="module" src="js/api/superadmin.js"></script>
+    <script type="module" src="js/api/teacher.js"></script>
+    <script type="module" src="js/api/parent.js"></script>
+    <script type="module" src="js/api/student.js"></script>
+    <script type="module" src="js/api/duty.js"></script>
+    <script type="module" src="js/api/upload.js"></script>
+    
+    <!-- Then: UI Components -->
+    <script type="module" src="js/ui/components/Modal.js"></script>
+    <script type="module" src="js/ui/feedback/Toast.js"></script>
+    <script type="module" src="js/ui/layout/Sidebar.js"></script>
+    <script type="module" src="js/ui/layout/Header.js"></script>
+    <script type="module" src="js/ui/layout/Footer.js"></script>
+    <script type="module" src="js/ui/layout/MobileNav.js"></script>
+    
+    <!-- Then: Features -->
+    <script type="module" src="js/features/auth/login.js"></script>
+    <script type="module" src="js/features/auth/signup.js"></script>
+    <script type="module" src="js/features/auth/password.js"></script>
+    <script type="module" src="js/features/auth/session.js"></script>
+    <script type="module" src="js/features/curriculum/gradeCalculator.js"></script>
+    <script type="module" src="js/features/curriculum/classGenerator.js"></script>
+    <script type="module" src="js/features/curriculum/subjectManager.js"></script>
+    <script type="module" src="js/features/classes/ClassManager.js"></script>
+    <script type="module" src="js/features/classes/TeacherAssignment.js"></script>
+    <script type="module" src="js/features/classes/StudentEnrollment.js"></script>
+    <script type="module" src="js/features/students/StudentManager.js"></script>
+    <script type="module" src="js/features/students/StudentDetails.js"></script>
+    <script type="module" src="js/features/students/BulkUpload.js"></script>
+    <script type="module" src="js/features/teachers/TeacherManager.js"></script>
+    <script type="module" src="js/features/teachers/TeacherApproval.js"></script>
+    <script type="module" src="js/features/teachers/TeacherDetails.js"></script>
+    <script type="module" src="js/features/duty/DutyManager.js"></script>
+    <script type="module" src="js/features/duty/DutyRoster.js"></script>
+    <script type="module" src="js/features/duty/DutyPoints.js"></script>
+    <script type="module" src="js/features/duty/FairnessReport.js"></script>
+    <script type="module" src="js/features/grades/GradeEntry.js"></script>
+    <script type="module" src="js/features/grades/GradeReport.js"></script>
+    <script type="module" src="js/features/grades/Analytics.js"></script>
+    <script type="module" src="js/features/attendance/AttendanceEntry.js"></script>
+    <script type="module" src="js/features/attendance/AttendanceReport.js"></script>
+    <script type="module" src="js/features/payments/PaymentManager.js"></script>
+    <script type="module" src="js/features/payments/SubscriptionManager.js"></script>
+    <script type="module" src="js/features/messages/ChatManager.js"></script>
+    <script type="module" src="js/features/messages/ConversationList.js"></script>
+    <script type="module" src="js/features/calendar/CalendarView.js"></script>
+    <script type="module" src="js/features/calendar/EventManager.js"></script>
+    
+    <!-- Then: Dashboard Core -->
+    <script type="module" src="js/dashboard/base/ChartRenderer.js"></script>
+    <script type="module" src="js/dashboard/base/StatsRenderer.js"></script>
+    <script type="module" src="js/dashboard/base/TableRenderer.js"></script>
+    <script type="module" src="js/dashboard/base/BaseDashboard.js"></script>
+    <script type="module" src="js/dashboard/roles/SuperAdminDashboard.js"></script>
+    <script type="module" src="js/dashboard/roles/AdminDashboard.js"></script>
+    <script type="module" src="js/dashboard/roles/TeacherDashboard.js"></script>
+    <script type="module" src="js/dashboard/roles/ParentDashboard.js"></script>
+    <script type="module" src="js/dashboard/roles/StudentDashboard.js"></script>
+    <script type="module" src="js/dashboard/index.js"></script>
+    
+    <!-- Then: Pages -->
+    <script type="module" src="js/pages/LandingPage.js"></script>
+    <script type="module" src="js/pages/DashboardPage.js"></script>
+    <script type="module" src="js/pages/ProfilePage.js"></script>
+    <script type="module" src="js/pages/SettingsPage.js"></script>
+    <script type="module" src="js/pages/HelpPage.js"></script>
+    
+    <!-- Finally: Main Application -->
+    <script type="module" src="js/main.js"></script>
     
     <!-- ============================================ -->
     <!-- SUPER ADMIN TRIPLE-CLICK TRIGGER - FIXED -->
