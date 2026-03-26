@@ -1,16 +1,12 @@
 // js/core/store.js
-console.log('📦 store.js loaded');
-
-const store = {
+export const store = {
     user: null,
     token: null,
     school: null,
 
     setUser(user) {
         this.user = user;
-        if (user && user.token) {
-            this.token = user.token;
-        }
+        if (user && user.token) this.token = user.token;
         localStorage.setItem('user', JSON.stringify(user));
     },
 
@@ -46,5 +42,3 @@ const store = {
         localStorage.removeItem('userRole');
     }
 };
-
-window.store = store;
