@@ -210,9 +210,11 @@ window.handleAuthSubmit = async function() {
             if (data.data.school) localStorage.setItem('school', JSON.stringify(data.data.school));
             
             window.closeAuthModal();
-            window.location.reload();
-        } else {
-            alert(data.message || 'Login failed');
+            
+            // NO RELOAD - just load dashboard
+            document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('dashboard-container').style.display = 'block';
+            await loadDashboard(data.data.user.role);
         }
     } catch (err) {
         alert('Login failed: ' + err.message);
