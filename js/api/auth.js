@@ -1,36 +1,38 @@
 // js/api/auth.js
-import { apiClient } from './client.js';
-import { API_ENDPOINTS } from '../constants/api.js';
+console.log('🔐 auth.js loaded');
 
-export const authAPI = {
-    superAdminLogin: (email, password, secretKey) => 
-        apiClient.post(API_ENDPOINTS.AUTH.SUPER_ADMIN_LOGIN, { email, password, secretKey }),
+window.api = window.api || {};
+
+window.api.auth = {
+    login(email, password, role) {
+        return apiClient.post('/api/auth/login', { email, password, role });
+    },
     
-    adminSignup: (data) => 
-        apiClient.post(API_ENDPOINTS.AUTH.ADMIN_SIGNUP, data),
+    superAdminLogin(email, password, secretKey) {
+        return apiClient.post('/api/auth/super-admin/login', { email, password, secretKey });
+    },
     
-    teacherSignup: (data) => 
-        apiClient.post(API_ENDPOINTS.AUTH.TEACHER_SIGNUP, data),
+    studentLogin(elimuid, password) {
+        return apiClient.post('/api/auth/student/login', { elimuid, password });
+    },
     
-    parentSignup: (data) => 
-        apiClient.post(API_ENDPOINTS.AUTH.PARENT_SIGNUP, data),
+    adminSignup(data) {
+        return apiClient.post('/api/auth/admin/signup', data);
+    },
     
-    studentLogin: (elimuid, password) => 
-        apiClient.post(API_ENDPOINTS.AUTH.STUDENT_LOGIN, { elimuid, password }),
+    teacherSignup(data) {
+        return apiClient.post('/api/auth/teacher/signup', data);
+    },
     
-    login: (email, password, role) => 
-        apiClient.post(API_ENDPOINTS.AUTH.LOGIN, { email, password, role }),
+    parentSignup(data) {
+        return apiClient.post('/api/auth/parent/signup', data);
+    },
     
-    verifySchoolCode: (schoolCode) => 
-        apiClient.post(API_ENDPOINTS.AUTH.VERIFY_SCHOOL, { schoolCode }),
+    getMe() {
+        return apiClient.get('/api/auth/me');
+    },
     
-    getMe: () => apiClient.get(API_ENDPOINTS.AUTH.GET_ME),
-    
-    logout: () => apiClient.post(API_ENDPOINTS.AUTH.LOGOUT),
-    
-    changePassword: (currentPassword, newPassword) => 
-        apiClient.post(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, { currentPassword, newPassword }),
-    
-    refreshToken: (refreshToken) => 
-        apiClient.post(API_ENDPOINTS.AUTH.REFRESH_TOKEN, { refreshToken })
+    logout() {
+        return apiClient.post('/api/auth/logout');
+    }
 };
