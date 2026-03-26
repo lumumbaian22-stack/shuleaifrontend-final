@@ -1,9 +1,7 @@
 // js/api/auth.js
-console.log('🔐 auth.js loaded');
+import { apiClient } from './client.js';
 
-window.api = window.api || {};
-
-window.api.auth = {
+export const authAPI = {
     login(email, password, role) {
         return apiClient.post('/api/auth/login', { email, password, role });
     },
