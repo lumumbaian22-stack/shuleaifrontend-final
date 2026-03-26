@@ -1,10 +1,9 @@
-// js/main.js - MINIMAL ENTRY POINT ONLY
+// js/main.js - ENTRY POINT ONLY
 import { store } from './core/store.js';
 import { getInitials, timeAgo, formatDate, escapeHtml } from './core/utils.js';
 
 console.log('🚀 main.js loaded');
 
-// Make utilities globally available
 window.getInitials = getInitials;
 window.timeAgo = timeAgo;
 window.formatDate = formatDate;
@@ -19,24 +18,28 @@ let isLoading = false;
 
 function renderSidebar(role) {
     const nav = document.getElementById('sidebar-nav');
+    const settingsNav = document.getElementById('settings-nav');
+    const mobileNav = document.getElementById('mobile-nav');
     if (!nav) return;
     
     const config = {
-        admin: [
-            { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
-            { icon: 'users', label: 'Students', section: 'students' },
-            { icon: 'user-plus', label: 'Teachers', section: 'teachers' },
-            { icon: 'book-open', label: 'Classes', section: 'classes' },
-            { icon: 'calendar-check', label: 'Attendance', section: 'attendance' },
-            { icon: 'trending-up', label: 'Grades', section: 'grades' },
-            { icon: 'clock', label: 'Duty', section: 'duty' },
-            { icon: 'settings', label: 'Settings', section: 'settings' }
-        ]
+        admin: {
+            main: [
+                { icon: 'layout-dashboard', label: 'Dashboard', section: 'dashboard' },
+                { icon: 'users', label: 'Students', section: 'students' },
+                { icon: 'user-plus', label: 'Teachers', section: 'teachers' },
+                { icon: 'book-open', label: 'Classes', section: 'classes' }
+            ],
+            settings: [
+                { icon: 'settings', label: 'Settings', section: 'settings' },
+                { icon: 'help-circle', label: 'Help', section: 'help' }
+            ]
+        }
     };
     
-    const items = config[role] || config.admin;
+    const data = config[role] || config.admin;
     
-    nav.innerHTML = items.map(item => `
+    nav.innerHTML = data.main.map(item => `
         <a href="#" onclick="window.router.navigate('${item.section}')" 
            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent transition-colors sidebar-link" 
            data-section="${item.section}">
@@ -44,6 +47,28 @@ function renderSidebar(role) {
             <span>${item.label}</span>
         </a>
     `).join('');
+    
+    if (settingsNav) {
+        settingsNav.innerHTML = data.settings.map(item => `
+            <a href="#" onclick="window.router.navigate('${item.section}')" 
+               class="flex items-center gap-3 rounded-lg px-3 py-2 text-sidebar-foreground hover:bg-sidebar-accent transition-colors sidebar-link" 
+               data-section="${item.section}">
+                <i data-lucide="${item.icon}" class="h-5 w-5"></i>
+                <span>${item.label}</span>
+            </a>
+        `).join('');
+    }
+    
+    if (mobileNav) {
+        mobileNav.innerHTML = data.main.slice(0, 4).map(item => `
+            <a href="#" onclick="window.router.navigate('${item.section}')" 
+               class="mobile-nav-item flex flex-col items-center justify-center flex-1 h-14 text-muted-foreground" 
+               data-section="${item.section}">
+                <i data-lucide="${item.icon}" class="h-5 w-5"></i>
+                <span class="text-xs mt-1">${item.label}</span>
+            </a>
+        `).join('');
+    }
     
     if (typeof lucide !== 'undefined') lucide.createIcons();
 }
@@ -69,12 +94,11 @@ function updateUserInfo() {
 }
 
 // ============================================
-// LOAD DASHBOARD
+// LOAD DASHBOARD (NO RELOAD)
 // ============================================
 
 async function loadDashboard(role) {
     console.log('Loading dashboard for role:', role);
-    
     renderSidebar(role);
     updateUserInfo();
     
@@ -94,6 +118,7 @@ async function loadDashboard(role) {
         console.log('✅ Dashboard loaded');
     } else {
         console.error('No dashboard for role:', role);
+        document.getElementById('dashboard-content').innerHTML = `<div class="text-center py-12 text-red-500">Dashboard not available</div>`;
     }
 }
 
@@ -110,7 +135,7 @@ window.router = {
 };
 
 // ============================================
-// INIT
+// INIT - NO RELOAD LOOP
 // ============================================
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -210,11 +235,12 @@ window.handleAuthSubmit = async function() {
             if (data.data.school) localStorage.setItem('school', JSON.stringify(data.data.school));
             
             window.closeAuthModal();
-            
             // NO RELOAD - just load dashboard
             document.getElementById('landing-page').style.display = 'none';
             document.getElementById('dashboard-container').style.display = 'block';
             await loadDashboard(data.data.user.role);
+        } else {
+            alert(data.message || 'Login failed');
         }
     } catch (err) {
         alert('Login failed: ' + err.message);
@@ -235,6 +261,7 @@ window.toggleMobileSidebar = () => document.getElementById('sidebar')?.classList
 window.toggleTheme = () => document.documentElement.classList.toggle('dark');
 window.toggleUserMenu = () => document.getElementById('user-menu')?.classList.toggle('hidden');
 window.showDashboardSection = (s) => window.router.navigate(s);
+window.refreshData = () => window.dashboard?.refresh();
 
 // ============================================
 // TRIPLE CLICK
