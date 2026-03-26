@@ -1,4 +1,4 @@
-// js/main.js - ES MODULE ENTRY POINT
+// js/main.js - ES MODULE ENTRY POINT (NO RELOAD LOOP)
 import { store } from './core/store.js';
 import { loadDashboard } from './dashboard/index.js';
 import { handleLogin, handleStudentLogin } from './features/auth/login.js';
@@ -15,22 +15,28 @@ window.timeAgo = timeAgo;
 window.formatDate = formatDate;
 window.escapeHtml = escapeHtml;
 
+// Track if we're already loading to prevent loops
+let isLoadingDashboard = false;
+
 // Wait for DOM
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM ready');
     
-    // Check existing session
+    // Check existing session - DO NOT RELOAD
     const user = store.getUser();
     const token = store.getToken();
     const role = localStorage.getItem('userRole');
     
-    if (user && token && role) {
+    if (user && token && role && !isLoadingDashboard) {
         console.log('Found existing session, loading dashboard');
+        isLoadingDashboard = true;
+        
         document.getElementById('landing-page').style.display = 'none';
         document.getElementById('dashboard-container').style.display = 'block';
         
         try {
             await loadDashboard(role);
+            console.log('Dashboard loaded successfully');
         } catch (error) {
             console.error('Dashboard load failed:', error);
             document.getElementById('dashboard-content').innerHTML = `
@@ -39,6 +45,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Retry</button>
                 </div>
             `;
+        } finally {
+            isLoadingDashboard = false;
         }
     } else {
         console.log('No session, showing landing page');
@@ -197,6 +205,52 @@ window.showNameChangeModal = function() {
 
 window.processNameChange = function() {
     alert('Name change feature coming soon');
+};
+
+// Functions for admin.html
+window.refreshAdminStudentList = function() {
+    if (window.dashboard && window.dashboard.refreshStudents) {
+        window.dashboard.refreshStudents();
+    }
+};
+
+window.refreshPendingTeachers = function() {
+    if (window.dashboard && window.dashboard.refreshPendingTeachers) {
+        window.dashboard.refreshPendingTeachers();
+    }
+};
+
+window.showDashboardSection = function(section) {
+    if (window.router && window.router.navigate) {
+        window.router.navigate(section);
+    } else if (window.dashboard && window.dashboard.showSection) {
+        window.dashboard.showSection(section);
+    }
+};
+
+// Modal close functions
+window.closeEditStudentModal = function() {
+    document.getElementById('edit-student-modal')?.classList.add('hidden');
+};
+
+window.closeEditTeacherModal = function() {
+    document.getElementById('edit-teacher-modal')?.classList.add('hidden');
+};
+
+window.closeAttendanceModal = function() {
+    document.getElementById('attendance-modal')?.classList.add('hidden');
+};
+
+window.closeStudentDetailsModal = function() {
+    document.getElementById('student-details-modal')?.classList.add('hidden');
+};
+
+window.handleUpdateStudent = function() {
+    alert('Update student feature');
+};
+
+window.handleUpdateTeacher = function() {
+    alert('Update teacher feature');
 };
 
 // ============================================
