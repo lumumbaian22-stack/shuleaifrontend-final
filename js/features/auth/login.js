@@ -1,16 +1,16 @@
 // js/features/auth/login.js
-console.log('🔑 login.js loaded');
+import { authAPI } from '../../api/auth.js';
+import { store } from '../../core/store.js';
+import { loadDashboard } from '../../dashboard/index.js';
 
-async function handleLogin(role, email, password, secretKey = null) {
+export async function handleLogin(role, email, password, secretKey = null) {
     console.log('Attempting login for role:', role);
-    
     try {
         let response;
-        
         if (role === 'superadmin') {
-            response = await window.api.auth.superAdminLogin(email, password, secretKey);
+            response = await authAPI.superAdminLogin(email, password, secretKey);
         } else {
-            response = await window.api.auth.login(email, password, role);
+            response = await authAPI.login(email, password, role);
         }
         
         if (response.success) {
@@ -18,7 +18,6 @@ async function handleLogin(role, email, password, secretKey = null) {
             const token = response.data.token;
             const school = response.data.school;
             
-            // Save to store
             user.token = token;
             store.setUser(user);
             store.setToken(token);
@@ -27,13 +26,10 @@ async function handleLogin(role, email, password, secretKey = null) {
             
             console.log('Login successful:', user.name);
             
-            // Load dashboard directly - NO RELOAD
-            await loadDashboard(user.role);
-            
-            // Hide landing, show dashboard
             document.getElementById('landing-page').style.display = 'none';
             document.getElementById('dashboard-container').style.display = 'block';
             
+            await loadDashboard(user.role);
             return true;
         } else {
             throw new Error(response.message || 'Login failed');
@@ -45,30 +41,22 @@ async function handleLogin(role, email, password, secretKey = null) {
     }
 }
 
-async function handleStudentLogin(elimuid, password) {
+export async function handleStudentLogin(elimuid, password) {
     console.log('Student login attempt');
-    
     try {
-        const response = await window.api.auth.studentLogin(elimuid, password);
-        
+        const response = await authAPI.studentLogin(elimuid, password);
         if (response.success) {
             const user = response.data.user;
             const token = response.data.token;
-            const student = response.data.student;
-            
             user.token = token;
             store.setUser(user);
             store.setToken(token);
             localStorage.setItem('userRole', 'student');
-            if (student) localStorage.setItem('student', JSON.stringify(student));
-            
-            console.log('Student login successful');
-            
-            await loadDashboard('student');
             
             document.getElementById('landing-page').style.display = 'none';
             document.getElementById('dashboard-container').style.display = 'block';
             
+            await loadDashboard('student');
             return true;
         } else {
             throw new Error(response.message || 'Login failed');
@@ -79,7 +67,3 @@ async function handleStudentLogin(elimuid, password) {
         return false;
     }
 }
-
-// Make globally available
-window.handleLogin = handleLogin;
-window.handleStudentLogin = handleStudentLogin;
