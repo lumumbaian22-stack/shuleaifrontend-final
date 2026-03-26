@@ -1,6 +1,6 @@
 // js/dashboard/roles/AdminDashboard.js
 import { BaseDashboard } from '../base/BaseDashboard.js';
-import { escapeHtml, formatDate, getInitials } from '../../core/utils.js';
+import { escapeHtml, formatDate, getInitials, timeAgo } from '../../core/utils.js';
 
 export class AdminDashboard extends BaseDashboard {
     constructor(containerId) {
@@ -36,18 +36,22 @@ export class AdminDashboard extends BaseDashboard {
             if (studentsRes.ok) {
                 const data = await studentsRes.json();
                 this.students = data.data || [];
+                console.log(`✅ Loaded ${this.students.length} students`);
             }
             if (teachersRes.ok) {
                 const data = await teachersRes.json();
                 this.teachers = data.data || [];
+                console.log(`✅ Loaded ${this.teachers.length} teachers`);
             }
             if (pendingRes.ok) {
                 const data = await pendingRes.json();
                 this.pendingTeachers = data.data?.teachers || [];
+                console.log(`✅ Loaded ${this.pendingTeachers.length} pending teachers`);
             }
             if (classesRes.ok) {
                 const data = await classesRes.json();
                 this.classes = data.data || [];
+                console.log(`✅ Loaded ${this.classes.length} classes`);
             }
 
         } catch (error) {
@@ -56,91 +60,233 @@ export class AdminDashboard extends BaseDashboard {
     }
 
     render() {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
         const school = JSON.parse(localStorage.getItem('school') || '{}');
         
-        this.container.innerHTML = `
-            <div class="space-y-6 animate-fade-in">
-                <!-- School Profile -->
-                <div class="rounded-xl border bg-card p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <h2 class="text-2xl font-bold">${escapeHtml(school.name) || 'Your School'}</h2>
-                            <p class="text-sm text-muted-foreground mt-1">Short Code: ${escapeHtml(school.shortCode) || 'SHL-XXXXX'}</p>
-                        </div>
-                        <button onclick="window.showNameChangeModal()" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90">Change School Name</button>
-                    </div>
-                </div>
-                
-                <!-- Stats Grid -->
-                <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <div class="rounded-xl border bg-card p-6">
-                        <div class="flex items-center justify-between">
-                            <div><p class="text-sm text-muted-foreground">Total Students</p><h3 class="text-2xl font-bold">${this.students.length}</h3></div>
-                            <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center"><i data-lucide="users" class="h-6 w-6 text-blue-600"></i></div>
-                        </div>
-                    </div>
-                    <div class="rounded-xl border bg-card p-6">
-                        <div class="flex items-center justify-between">
-                            <div><p class="text-sm text-muted-foreground">Teachers</p><h3 class="text-2xl font-bold">${this.teachers.length}</h3><p class="text-xs text-green-600 mt-1">${this.pendingTeachers.length} pending</p></div>
-                            <div class="h-12 w-12 rounded-lg bg-violet-100 flex items-center justify-center"><i data-lucide="user-plus" class="h-6 w-6 text-violet-600"></i></div>
-                        </div>
-                    </div>
-                    <div class="rounded-xl border bg-card p-6">
-                        <div class="flex items-center justify-between">
-                            <div><p class="text-sm text-muted-foreground">Classes</p><h3 class="text-2xl font-bold">${this.classes.length}</h3></div>
-                            <div class="h-12 w-12 rounded-lg bg-emerald-100 flex items-center justify-center"><i data-lucide="book-open" class="h-6 w-6 text-emerald-600"></i></div>
-                        </div>
-                    </div>
-                    <div class="rounded-xl border bg-card p-6">
-                        <div class="flex items-center justify-between">
-                            <div><p class="text-sm text-muted-foreground">Attendance Rate</p><h3 class="text-2xl font-bold">94%</h3></div>
-                            <div class="h-12 w-12 rounded-lg bg-amber-100 flex items-center justify-center"><i data-lucide="calendar-check" class="h-6 w-6 text-amber-600"></i></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Students Table -->
-                <div class="rounded-xl border bg-card overflow-hidden">
-                    <div class="p-4 border-b flex justify-between items-center">
-                        <h3 class="font-semibold">Recent Students</h3>
-                        <button onclick="window.refreshData()" class="px-3 py-1 border rounded-lg text-sm hover:bg-accent">Refresh</button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-muted/50"><tr><th class="px-4 py-3 text-left">Student</th><th class="px-4 py-3 text-left">ELIMUID</th><th class="px-4 py-3 text-left">Grade</th><th class="px-4 py-3 text-left">Status</th></tr></thead>
-                            <tbody class="divide-y">
-                                ${this.students.slice(0, 5).map(s => {
-                                    const name = s.User?.name || 'Unknown';
-                                    const initials = getInitials(name);
-                                    return `<tr class="hover:bg-accent/50"><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center"><span class="text-blue-700 text-sm font-medium">${initials}</span></div><span>${escapeHtml(name)}</span></div></td><td class="px-4 py-3"><span class="font-mono text-xs bg-muted px-2 py-1 rounded">${s.elimuid || 'N/A'}</span></td><td class="px-4 py-3">${s.grade || 'N/A'}</td><td class="px-4 py-3"><span class="px-2 py-1 ${s.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'} text-xs rounded-full">${s.status || 'active'}</span></td></tr>`;
-                                }).join('')}
-                                ${this.students.length === 0 ? '<tr><td colspan="4" class="px-4 py-8 text-center text-muted-foreground">No students found</td></tr>' : ''}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <!-- Quick Actions -->
-                <div class="grid gap-4 md:grid-cols-3">
-                    <button onclick="window.router?.navigate('students')" class="p-6 border rounded-lg hover:bg-accent text-left"><i data-lucide="users" class="h-8 w-8 text-green-600 mb-3"></i><h4 class="font-semibold">Student Management</h4><p class="text-sm text-muted-foreground">View and manage all students</p></button>
-                    <button onclick="window.router?.navigate('teachers')" class="p-6 border rounded-lg hover:bg-accent text-left"><i data-lucide="user-plus" class="h-8 w-8 text-blue-600 mb-3"></i><h4 class="font-semibold">Teacher Management</h4><p class="text-sm text-muted-foreground">Manage teachers and approvals</p></button>
-                    <button onclick="window.router?.navigate('settings')" class="p-6 border rounded-lg hover:bg-accent text-left"><i data-lucide="settings" class="h-8 w-8 text-purple-600 mb-3"></i><h4 class="font-semibold">School Settings</h4><p class="text-sm text-muted-foreground">Configure curriculum and subjects</p></button>
-                </div>
-                
-                <div class="rounded-xl border bg-card p-6 text-center">
-                    <i data-lucide="check-circle" class="h-12 w-12 mx-auto text-green-500 mb-3"></i>
-                    <h3 class="text-xl font-semibold mb-2">Welcome back, ${escapeHtml(user.name) || 'Admin'}!</h3>
-                    <p class="text-muted-foreground">${this.students.length} students, ${this.teachers.length} teachers, ${this.classes.length} classes.</p>
-                </div>
-            </div>
-        `;
+        // Update stats in the HTML
+        this.updateStats();
         
+        // Render the student table
+        this.renderStudentsTable();
+        
+        // Render pending teachers table
+        this.renderPendingTeachersTable();
+        
+        // Update school info
+        this.updateSchoolInfo(school);
+        
+        // Update pending count badges
+        this.updatePendingCounts();
+    }
+    
+    updateStats() {
+        const totalStudentsEl = document.getElementById('total-students');
+        const totalTeachersEl = document.getElementById('total-teachers');
+        const totalClassesEl = document.getElementById('total-classes');
+        const pendingTeachersEl = document.getElementById('pending-teachers');
+        const pendingCountBadge = document.getElementById('pending-count-badge');
+        const pendingCount = document.getElementById('pending-count');
+        
+        if (totalStudentsEl) totalStudentsEl.textContent = this.students.length;
+        if (totalTeachersEl) totalTeachersEl.textContent = this.teachers.length;
+        if (totalClassesEl) totalClassesEl.textContent = this.classes.length;
+        if (pendingTeachersEl) pendingTeachersEl.textContent = this.pendingTeachers.length;
+        if (pendingCountBadge) pendingCountBadge.textContent = `${this.pendingTeachers.length} pending`;
+        if (pendingCount) pendingCount.textContent = this.pendingTeachers.length;
+    }
+    
+    updateSchoolInfo(school) {
+        const schoolNameEl = document.getElementById('school-name');
+        const schoolShortcodeEl = document.getElementById('school-shortcode');
+        const displayShortcodeEl = document.getElementById('display-shortcode');
+        const schoolStatusEl = document.getElementById('school-status');
+        
+        if (schoolNameEl) schoolNameEl.textContent = school.name || 'Your School';
+        if (schoolShortcodeEl) schoolShortcodeEl.textContent = school.shortCode || 'SHL-XXXXX';
+        if (displayShortcodeEl) displayShortcodeEl.textContent = school.shortCode || 'SHL-XXXXX';
+        if (schoolStatusEl) {
+            schoolStatusEl.textContent = school.status || 'Active';
+            schoolStatusEl.className = `px-3 py-1 ${school.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'} text-xs rounded-full`;
+        }
+    }
+    
+    updatePendingCounts() {
+        const pendingCountBadge = document.getElementById('pending-count-badge');
+        const pendingCount = document.getElementById('pending-count');
+        if (pendingCountBadge) pendingCountBadge.textContent = `${this.pendingTeachers.length} pending`;
+        if (pendingCount) pendingCount.textContent = this.pendingTeachers.length;
+    }
+    
+    renderStudentsTable() {
+        const container = document.getElementById('admin-students-table-body');
+        if (!container) return;
+        
+        if (this.students.length === 0) {
+            container.innerHTML = '<tr><td colspan="6" class="px-4 py-8 text-center text-muted-foreground">No students found</td></tr>';
+            return;
+        }
+        
+        let html = '';
+        this.students.forEach(student => {
+            const user = student.User || {};
+            const name = user.name || 'Unknown';
+            const elimuid = student.elimuid || 'N/A';
+            const grade = student.grade || 'N/A';
+            const status = student.status || 'active';
+            const statusClass = status === 'active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+            const parentEmail = user.email || '-';
+            const initials = getInitials(name);
+            
+            html += `
+                <tr class="hover:bg-accent/50 transition-colors">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                                <span class="font-medium text-blue-700 text-sm">${initials}</span>
+                            </div>
+                            <span class="font-medium">${escapeHtml(name)}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="font-mono text-xs bg-muted px-2 py-1 rounded">${elimuid}</span>
+                    </td>
+                    <td class="px-4 py-3">${grade}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 ${statusClass} text-xs rounded-full">${status}</span>
+                    </td>
+                    <td class="px-4 py-3">${parentEmail}</td>
+                    <td class="px-4 py-3 text-right">
+                        <button onclick="window.viewStudentDetails('${student.id}')" class="p-2 hover:bg-accent rounded-lg" title="View">
+                            <i data-lucide="eye" class="h-4 w-4"></i>
+                        </button>
+                        <button onclick="window.editStudent('${student.id}')" class="p-2 hover:bg-accent rounded-lg" title="Edit">
+                            <i data-lucide="edit" class="h-4 w-4"></i>
+                        </button>
+                        <button onclick="window.copyElimuid('${elimuid}')" class="p-2 hover:bg-purple-100 rounded-lg text-purple-600" title="Copy">
+                            <i data-lucide="copy" class="h-4 w-4"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        container.innerHTML = html;
         if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    
+    renderPendingTeachersTable() {
+        const container = document.getElementById('pending-teachers-table');
+        if (!container) return;
+        
+        if (this.pendingTeachers.length === 0) {
+            container.innerHTML = '<tr><td colspan="5" class="px-4 py-8 text-center text-muted-foreground">No pending approvals</td></tr>';
+            return;
+        }
+        
+        let html = '';
+        this.pendingTeachers.forEach(teacher => {
+            const user = teacher.User || {};
+            const name = user.name || 'Unknown';
+            const email = user.email || 'N/A';
+            const subjects = (teacher.subjects || []).join(', ') || 'N/A';
+            const applied = timeAgo(teacher.createdAt);
+            const initials = getInitials(name);
+            
+            html += `
+                <tr class="hover:bg-accent/50 transition-colors">
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="h-8 w-8 rounded-full bg-violet-100 flex items-center justify-center">
+                                <span class="font-medium text-violet-700 text-sm">${initials}</span>
+                            </div>
+                            <span class="font-medium">${escapeHtml(name)}</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">${escapeHtml(email)}</td>
+                    <td class="px-4 py-3">${escapeHtml(subjects)}</td>
+                    <td class="px-4 py-3">${applied}</td>
+                    <td class="px-4 py-3 text-right">
+                        <button onclick="window.approveTeacher('${teacher.id}')" class="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full hover:bg-green-200 mr-2">Approve</button>
+                        <button onclick="window.rejectTeacher('${teacher.id}')" class="px-3 py-1 bg-red-100 text-red-700 text-xs rounded-full hover:bg-red-200">Reject</button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        container.innerHTML = html;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+    
+    refreshStudents() {
+        this.loadData().then(() => {
+            this.renderStudentsTable();
+            this.updateStats();
+        });
+    }
+    
+    refreshPendingTeachers() {
+        this.loadData().then(() => {
+            this.renderPendingTeachersTable();
+            this.updateStats();
+            this.updatePendingCounts();
+        });
     }
     
     showSection(section) {
         console.log('Showing section:', section);
-        this.refresh();
+        // Handle navigation to different sections
+        if (section === 'students') {
+            this.refreshStudents();
+        } else if (section === 'teachers') {
+            this.refreshPendingTeachers();
+        } else if (section === 'dashboard') {
+            this.refresh();
+        } else if (section === 'settings') {
+            document.getElementById('dashboard-content').innerHTML = `
+                <div class="text-center py-12">
+                    <h2 class="text-2xl font-bold mb-4">School Settings</h2>
+                    <p class="text-muted-foreground">Settings page coming soon.</p>
+                </div>
+            `;
+        } else if (section === 'teacher-approvals') {
+            this.refreshPendingTeachers();
+        }
+    }
+    
+    async refresh() {
+        await this.loadData();
+        this.updateStats();
+        this.renderStudentsTable();
+        this.renderPendingTeachersTable();
+        this.updatePendingCounts();
     }
 }
+
+// Make functions globally available
+window.viewStudentDetails = function(studentId) {
+    alert('View student details: ' + studentId);
+};
+
+window.editStudent = function(studentId) {
+    alert('Edit student: ' + studentId);
+};
+
+window.copyElimuid = function(elimuid) {
+    navigator.clipboard.writeText(elimuid).then(() => {
+        alert('ELIMUID copied: ' + elimuid);
+    }).catch(() => {
+        alert('Failed to copy');
+    });
+};
+
+window.approveTeacher = async function(teacherId) {
+    if (!confirm('Approve this teacher?')) return;
+    alert('Approving teacher: ' + teacherId);
+    // Add API call here
+};
+
+window.rejectTeacher = async function(teacherId) {
+    const reason = prompt('Please enter rejection reason:');
+    if (!reason) return;
+    alert('Rejecting teacher: ' + teacherId);
+    // Add API call here
+};
