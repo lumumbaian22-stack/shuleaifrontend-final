@@ -1,5 +1,8 @@
 // js/dashboard/roles/SuperAdminDashboard.js
-class SuperAdminDashboard extends window.BaseDashboard {
+import { BaseDashboard } from '../base/BaseDashboard.js';
+import { escapeHtml } from '../../core/utils.js';
+
+export class SuperAdminDashboard extends BaseDashboard {
     constructor(containerId) {
         super(containerId);
         this.schools = [];
@@ -42,7 +45,7 @@ class SuperAdminDashboard extends window.BaseDashboard {
             <div class="space-y-6 animate-fade-in">
                 <div class="rounded-xl border bg-card p-6 bg-gradient-to-r from-purple-50 to-pink-50">
                     <h2 class="text-2xl font-bold">Super Admin Dashboard</h2>
-                    <p class="text-muted-foreground mt-2">Welcome, ${this.escapeHtml(user.name) || 'Super Admin'}!</p>
+                    <p class="text-muted-foreground mt-2">Welcome, ${escapeHtml(user.name) || 'Super Admin'}!</p>
                 </div>
                 
                 <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -53,22 +56,17 @@ class SuperAdminDashboard extends window.BaseDashboard {
                 </div>
                 
                 <div class="grid gap-4 md:grid-cols-2">
-                    <button onclick="window.router.navigate('schools')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="building-2" class="h-8 w-8 mx-auto mb-3 text-blue-600"></i><h4 class="font-semibold text-center">Manage Schools</h4></button>
-                    <button onclick="window.router.navigate('settings')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="settings" class="h-8 w-8 mx-auto mb-3 text-purple-600"></i><h4 class="font-semibold text-center">Platform Settings</h4></button>
+                    <button onclick="window.router?.navigate('schools')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="building-2" class="h-8 w-8 mx-auto mb-3 text-blue-600"></i><h4 class="font-semibold text-center">Manage Schools</h4></button>
+                    <button onclick="window.router?.navigate('settings')" class="p-6 border rounded-lg hover:bg-accent"><i data-lucide="settings" class="h-8 w-8 mx-auto mb-3 text-purple-600"></i><h4 class="font-semibold text-center">Platform Settings</h4></button>
                 </div>
             </div>
         `;
         
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
-
-    escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+    
+    showSection(section) {
+        console.log('Showing section:', section);
+        this.refresh();
     }
 }
-
-window.SuperAdminDashboard = SuperAdminDashboard;
-console.log('✅ SuperAdminDashboard loaded');
