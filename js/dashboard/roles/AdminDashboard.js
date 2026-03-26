@@ -579,32 +579,6 @@ export class AdminDashboard extends BaseDashboard {
         `;
     }
     
-    // Attendance Section
-    renderAttendanceSection() {
-        return `
-            <div class="space-y-6 animate-fade-in">
-                <h2 class="text-2xl font-bold">Attendance Management</h2>
-                <div class="rounded-xl border bg-card p-6 text-center">
-                    <i data-lucide="calendar-check" class="h-12 w-12 mx-auto text-muted-foreground mb-4"></i>
-                    <p class="text-muted-foreground">Attendance tracking coming soon</p>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Grades Section
-    renderGradesSection() {
-        return `
-            <div class="space-y-6 animate-fade-in">
-                <h2 class="text-2xl font-bold">Grade Management</h2>
-                <div class="rounded-xl border bg-card p-6 text-center">
-                    <i data-lucide="trending-up" class="h-12 w-12 mx-auto text-muted-foreground mb-4"></i>
-                    <p class="text-muted-foreground">Grade management coming soon</p>
-                </div>
-            </div>
-        `;
-    }
-    
     // Duty Section
     renderDutySection() {
         return `
@@ -662,8 +636,6 @@ export class AdminDashboard extends BaseDashboard {
             students: 'Students',
             teachers: 'Teachers',
             classes: 'Classes',
-            attendance: 'Attendance',
-            grades: 'Grades',
             duty: 'Duty Management',
             settings: 'Settings',
             'teacher-approvals': 'Teacher Approvals'
@@ -690,18 +662,6 @@ export class AdminDashboard extends BaseDashboard {
                 break;
             case 'classes':
                 content.innerHTML = this.renderClassesSection();
-                setTimeout(() => {
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }, 100);
-                break;
-            case 'attendance':
-                content.innerHTML = this.renderAttendanceSection();
-                setTimeout(() => {
-                    if (typeof lucide !== 'undefined') lucide.createIcons();
-                }, 100);
-                break;
-            case 'grades':
-                content.innerHTML = this.renderGradesSection();
                 setTimeout(() => {
                     if (typeof lucide !== 'undefined') lucide.createIcons();
                 }, 100);
