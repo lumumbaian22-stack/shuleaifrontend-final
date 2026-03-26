@@ -151,6 +151,16 @@ window.handleAuthSubmit = async function() {
     }
 };
 
+// Simple router for navigation
+window.router = {
+    navigate: function(section) {
+        console.log('Navigate to:', section);
+        if (window.dashboard && window.dashboard.showSection) {
+            window.dashboard.showSection(section);
+        }
+    }
+};
+
 // ============================================
 // UI HELPERS
 // ============================================
