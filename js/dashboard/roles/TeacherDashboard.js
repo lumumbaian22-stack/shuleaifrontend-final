@@ -1,5 +1,8 @@
 // js/dashboard/roles/TeacherDashboard.js
-class TeacherDashboard extends window.BaseDashboard {
+import { BaseDashboard } from '../base/BaseDashboard.js';
+import { escapeHtml, getInitials } from '../../core/utils.js';
+
+export class TeacherDashboard extends BaseDashboard {
     constructor(containerId) {
         super(containerId);
         this.students = [];
@@ -32,7 +35,7 @@ class TeacherDashboard extends window.BaseDashboard {
             <div class="space-y-6 animate-fade-in">
                 <div class="rounded-xl border bg-card p-6 bg-gradient-to-r from-green-50 to-emerald-50">
                     <h2 class="text-2xl font-bold">Teacher Dashboard</h2>
-                    <p class="text-muted-foreground mt-2">Welcome back, ${this.escapeHtml(user.name) || 'Teacher'}!</p>
+                    <p class="text-muted-foreground mt-2">Welcome back, ${escapeHtml(user.name) || 'Teacher'}!</p>
                 </div>
                 
                 <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -50,34 +53,29 @@ class TeacherDashboard extends window.BaseDashboard {
                             <tbody class="divide-y">
                                 ${this.students.slice(0, 10).map(s => {
                                     const name = s.User?.name || 'Unknown';
-                                    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                                    return `<tr><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-8 w-8 rounded-full bg-blue-100"><span class="text-blue-700 text-sm font-medium block text-center leading-8">${initials}</span></div><span>${this.escapeHtml(name)}</span></div></td><td class="px-4 py-3"><span class="font-mono text-xs bg-muted px-2 py-1 rounded">${s.elimuid || 'N/A'}</span></td><td class="px-4 py-3">${s.grade || 'N/A'}</td><td class="px-4 py-3"><div class="flex items-center gap-2"><div class="h-2 w-16 rounded-full bg-muted overflow-hidden"><div class="h-full w-[${s.attendance || 95}%] bg-green-500 rounded-full"></div></div><span>${s.attendance || 95}%</span></div></td></tr>`;
+                                    const initials = getInitials(name);
+                                    return `<tr class="hover:bg-accent/50"><td class="px-4 py-3"><div class="flex items-center gap-3"><div class="h-8 w-8 rounded-full bg-blue-100"><span class="text-blue-700 text-sm font-medium block text-center leading-8">${initials}</span></div><span>${escapeHtml(name)}</span></div></td><td class="px-4 py-3"><span class="font-mono text-xs bg-muted px-2 py-1 rounded">${s.elimuid || 'N/A'}</span></td><td class="px-4 py-3">${s.grade || 'N/A'}</td><td class="px-4 py-3"><div class="flex items-center gap-2"><div class="h-2 w-16 rounded-full bg-muted overflow-hidden"><div class="h-full w-[${s.attendance || 95}%] bg-green-500 rounded-full"></div></div><span>${s.attendance || 95}%</span></div></td></tr>`;
                                 }).join('')}
-                                ${this.students.length === 0 ? '<tr><td colspan="4" class="px-4 py-8 text-center">No students in your class</td></tr>' : ''}
+                                ${this.students.length === 0 ? '<tr><td colspan="4" class="px-4 py-8 text-center text-muted-foreground">No students in your class</td></tr>' : ''}
                             </tbody>
                         </table>
                     </div>
                 </div>
                 
                 <div class="grid gap-4 md:grid-cols-4">
-                    <button onclick="window.router.navigate('students')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="users" class="h-6 w-6 mx-auto mb-2 text-blue-600"></i><p class="text-center">My Students</p></button>
-                    <button onclick="window.router.navigate('attendance')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="calendar-check" class="h-6 w-6 mx-auto mb-2 text-green-600"></i><p class="text-center">Attendance</p></button>
-                    <button onclick="window.router.navigate('grades')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="trending-up" class="h-6 w-6 mx-auto mb-2 text-purple-600"></i><p class="text-center">Grades</p></button>
-                    <button onclick="window.router.navigate('duty')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="clock" class="h-6 w-6 mx-auto mb-2 text-amber-600"></i><p class="text-center">My Duty</p></button>
+                    <button onclick="window.router?.navigate('students')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="users" class="h-6 w-6 mx-auto mb-2 text-blue-600"></i><p class="text-center">My Students</p></button>
+                    <button onclick="window.router?.navigate('attendance')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="calendar-check" class="h-6 w-6 mx-auto mb-2 text-green-600"></i><p class="text-center">Attendance</p></button>
+                    <button onclick="window.router?.navigate('grades')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="trending-up" class="h-6 w-6 mx-auto mb-2 text-purple-600"></i><p class="text-center">Grades</p></button>
+                    <button onclick="window.router?.navigate('duty')" class="p-4 border rounded-lg hover:bg-accent"><i data-lucide="clock" class="h-6 w-6 mx-auto mb-2 text-amber-600"></i><p class="text-center">My Duty</p></button>
                 </div>
             </div>
         `;
         
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
-
-    escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+    
+    showSection(section) {
+        console.log('Showing section:', section);
+        this.refresh();
     }
 }
-
-window.TeacherDashboard = TeacherDashboard;
-console.log('✅ TeacherDashboard loaded');
