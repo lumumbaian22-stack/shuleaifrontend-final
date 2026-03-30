@@ -2,10 +2,12 @@
 import { useState, useEffect } from '../core/utils.js';
 import { classManager } from '../features/classes/ClassManager.js';
 import { teacherAssignment } from '../features/classes/TeacherAssignment.js';
+import { subjectAssignment } from '../features/classes/SubjectAssignment.js'; // New import
 
 export const useClasses = () => {
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     
     useEffect(() => {
         loadClasses();
@@ -13,9 +15,21 @@ export const useClasses = () => {
     
     const loadClasses = async () => {
         setLoading(true);
-        const data = await classManager.loadClasses();
-        setClasses(data);
-        setLoading(false);
+        setError(null);
+        try {
+            const data = await classManager.loadClasses();
+            // Ensure subjectTeachers is always an array
+            const classesWithSubjects = (data || []).map(cls => ({
+                ...cls,
+                subjectTeachers: cls.subjectTeachers || []
+            }));
+            setClasses(classesWithSubjects);
+        } catch (err) {
+            setError(err.message);
+            console.error('Error loading classes:', err);
+        } finally {
+            setLoading(false);
+        }
     };
     
     const createClass = async (name, grade, stream = null) => {
@@ -48,14 +62,51 @@ export const useClasses = () => {
         return result;
     };
     
+    // NEW: Subject Teacher Functions
+    const assignSubjectTeacher = async (classId, teacherId, subject) => {
+        try {
+            const result = await subjectAssignment.assignTeacher(classId, teacherId, subject);
+            if (result) await loadClasses();
+            return result;
+        } catch (err) {
+            setError(err.message);
+            throw err;
+        }
+    };
+    
+    const removeSubjectTeacher = async (assignmentId, classId) => {
+        try {
+            const result = await subjectAssignment.removeTeacher(assignmentId);
+            if (result) await loadClasses();
+            return result;
+        } catch (err) {
+            setError(err.message);
+            throw err;
+        }
+    };
+    
+    const getSubjectTeachers = async (classId) => {
+        try {
+            const result = await subjectAssignment.getAssignments(classId);
+            return result;
+        } catch (err) {
+            setError(err.message);
+            return [];
+        }
+    };
+    
     return {
         classes,
         loading,
+        error,
         createClass,
         updateClass,
         deleteClass,
         assignTeacher,
         removeTeacher,
+        assignSubjectTeacher,
+        removeSubjectTeacher,
+        getSubjectTeachers,
         refresh: loadClasses
     };
 };
