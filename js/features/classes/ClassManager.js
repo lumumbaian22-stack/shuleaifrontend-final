@@ -132,7 +132,7 @@ export const classManager = {
         }
     },
     
-    // ============ NEW: SUBJECT TEACHER FUNCTIONS ============
+    // ============ SUBJECT TEACHER FUNCTIONS ============
     
     async assignSubjectTeacher(classId, teacherId, subject) {
         if (!classId || !teacherId || !subject) {
@@ -204,7 +204,7 @@ export const classManager = {
     async showAssignSubjectModal(classData) {
         if (!classData) return;
         
-        // Load teachers if not already loaded
+        // Load teachers
         let teachers = [];
         try {
             const response = await apiClient.get('/api/admin/available-teachers');
@@ -255,7 +255,7 @@ export const classManager = {
                                                         </option>
                                                     `).join('')}
                                                 </select>
-                                            </td>
+                                             </td>
                                             <td class="px-4 py-2 text-center">
                                                 <button onclick="window.classManager.handleAssignSubject(${classData.id}, '${subject.replace(/'/g, "\\'")}')" 
                                                         class="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90">
@@ -267,12 +267,12 @@ export const classManager = {
                                                         Remove
                                                     </button>
                                                 ` : ''}
-                                            </td>
-                                        </tr>
+                                             </td>
+                                         </tr>
                                     `;
                                 }).join('')}
                             </tbody>
-                        </table>
+                         </table>
                     </div>
                 </div>
             </div>
@@ -295,14 +295,12 @@ export const classManager = {
         const success = await this.assignSubjectTeacher(classId, parseInt(teacherId), subject);
         
         if (success) {
-            // Refresh the modal content
             const classData = this.classes.find(c => c.id === classId);
             modalManager.close('assign-subject-modal');
             setTimeout(() => {
                 this.showAssignSubjectModal(classData);
             }, 500);
             
-            // Refresh dashboard display
             if (window.dashboard && window.dashboard.refreshClasses) {
                 window.dashboard.refreshClasses();
             }
@@ -315,14 +313,12 @@ export const classManager = {
         const success = await this.removeSubjectTeacher(assignmentId, classId);
         
         if (success) {
-            // Refresh the modal if open
             const classData = this.classes.find(c => c.id === classId);
             modalManager.close('assign-subject-modal');
             setTimeout(() => {
                 this.showAssignSubjectModal(classData);
             }, 500);
             
-            // Refresh dashboard display
             if (window.dashboard && window.dashboard.refreshClasses) {
                 window.dashboard.refreshClasses();
             }
@@ -373,7 +369,7 @@ export const classManager = {
         return div.innerHTML;
     },
     
-    // ============ RENDER FUNCTION ============
+    // ============ RENDER FUNCTIONS ============
     
     renderClassesTable(containerId) {
         const container = document.getElementById(containerId);
@@ -394,9 +390,8 @@ export const classManager = {
                             <th class="px-4 py-3 text-left font-medium">Class Teacher</th>
                             <th class="px-4 py-3 text-left font-medium">Students</th>
                             <th class="px-4 py-3 text-right font-medium">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y">
+                        </thead>
+                        <tbody class="divide-y">
         `;
         
         for (const cls of this.classes) {
@@ -416,7 +411,7 @@ export const classManager = {
                                 </option>
                             `).join('') || '<option disabled>Loading teachers...</option>'}
                         </select>
-                        <button onclick="window.classManager.assignTeacher(${cls.id})" class="ml-2 text-primary hover:underline text-sm">Save</button>
+                        <button onclick="window.classManager.assignTeacherToClass(${cls.id})" class="ml-2 text-primary hover:underline text-sm">Save</button>
                         <span class="ml-2 text-xs ${hasTeacher ? 'text-green-600' : 'text-yellow-600'}">${currentTeacher}</span>
                     </td>
                     <td class="px-4 py-3">${cls.studentCount || 0}</td>
@@ -456,18 +451,20 @@ export const classManager = {
         }
         
         html += `
-                    </tbody>
-                </table>
-            </div>
-        `;
+                        </tbody>
+                    </table>
+                </div>
+            `;
         
         container.innerHTML = html;
         
-        // Initialize Lucide icons
         if (typeof lucide !== 'undefined') lucide.createIcons();
     },
     
     renderSubjectTeachers(cls) {
+        console.log('renderSubjectTeachers called for class:', cls.id, cls.name);
+        console.log('Subject teachers data:', cls.subjectTeachers);
+        
         if (!cls.subjectTeachers || cls.subjectTeachers.length === 0) {
             return `
                 <div class="text-sm text-muted-foreground text-center py-4 bg-muted/20 rounded">
@@ -477,24 +474,31 @@ export const classManager = {
             `;
         }
         
+        // Build HTML for each subject teacher
+        let cardsHtml = '';
+        for (let i = 0; i < cls.subjectTeachers.length; i++) {
+            const st = cls.subjectTeachers[i];
+            cardsHtml += `
+                <div class="flex justify-between items-center p-3 bg-card border rounded-lg shadow-sm">
+                    <div>
+                        <span class="font-medium text-sm">📚 ${this.escapeHtml(st.subject)}</span>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-xs text-muted-foreground">Teacher:</span>
+                            <span class="text-xs font-medium text-primary">${this.escapeHtml(st.teacherName)}</span>
+                        </div>
+                    </div>
+                    <button onclick="window.classManager.handleRemoveSubject('${st.id}', ${cls.id})" 
+                            class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
+                            title="Remove teacher from this subject">
+                        <i data-lucide="x" class="h-4 w-4"></i>
+                    </button>
+                </div>
+            `;
+        }
+        
         return `
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                ${cls.subjectTeachers.map(st => `
-                    <div class="flex justify-between items-center p-3 bg-card border rounded-lg shadow-sm">
-                        <div>
-                            <span class="font-medium text-sm">📚 ${this.escapeHtml(st.subject)}</span>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-xs text-muted-foreground">Teacher:</span>
-                                <span class="text-xs font-medium text-primary">${this.escapeHtml(st.teacherName)}</span>
-                            </div>
-                        </div>
-                        <button onclick="window.classManager.handleRemoveSubject('${st.id}', ${cls.id})" 
-                                class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 transition-colors"
-                                title="Remove teacher from this subject">
-                            <i data-lucide="x" class="h-4 w-4"></i>
-                        </button>
-                    </div>
-                `).join('')}
+                ${cardsHtml}
             </div>
         `;
     },
@@ -504,16 +508,7 @@ export const classManager = {
         if (row) row.classList.toggle('hidden');
     },
     
-    async editClass(classId) {
-        const classData = this.classes.find(c => c.id === classId);
-        if (!classData) {
-            toast.error('Class not found');
-            return;
-        }
-        this.showEditClassModal(classData);
-    },
-    
-    async assignTeacher(classId) {
+    async assignTeacherToClass(classId) {
         const select = document.getElementById(`teacher-${classId}`);
         const teacherId = select?.value;
         
@@ -522,44 +517,86 @@ export const classManager = {
             return;
         }
         
-        await this.assignTeacherToClass(classId, parseInt(teacherId));
+        await this.assignTeacher(classId, parseInt(teacherId));
     },
     
-    async assignTeacherToClass(classId, teacherId) {
-        toast.loading(true);
-        try {
-            const response = await apiClient.post(`/api/admin/classes/${classId}/assign-teacher`, { teacherId });
-            if (response.success) {
-                toast.success('✅ Class teacher assigned successfully');
-                await this.loadClasses();
-                if (window.dashboard && window.dashboard.refreshClasses) {
-                    window.dashboard.refreshClasses();
-                }
-            }
-        } catch (error) {
-            toast.error(error.message || 'Failed to assign teacher');
-        } finally {
-            toast.loading(false);
+    showAddClassModal() {
+        const modal = modalManager.create('add-class-modal', 'Add New Class');
+        modal.setContent(`
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Class Name *</label>
+                    <input type="text" id="class-name" placeholder="e.g., Form 1A, Grade 10 Science" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Grade/Level *</label>
+                    <input type="text" id="class-grade" placeholder="e.g., 10, Form 1" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Stream (Optional)</label>
+                    <input type="text" id="class-stream" placeholder="e.g., A, B, Science, Arts" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                </div>
+                <div class="flex justify-end gap-2 pt-4 border-t">
+                    <button onclick="window.modalManager?.close('add-class-modal')" class="px-4 py-2 text-sm border rounded-lg hover:bg-accent">Cancel</button>
+                    <button onclick="window.classManager.handleAddClass()" class="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Create Class</button>
+                </div>
+            </div>
+        `);
+        modal.open();
+    },
+    
+    async handleAddClass() {
+        const name = document.getElementById('class-name')?.value;
+        const grade = document.getElementById('class-grade')?.value;
+        const stream = document.getElementById('class-stream')?.value;
+        
+        await this.createClass(name, grade, stream);
+        modalManager.close('add-class-modal');
+        
+        if (window.dashboard && window.dashboard.refreshClasses) {
+            window.dashboard.refreshClasses();
         }
     },
     
-    async deleteClass(classId) {
-        if (!confirm('⚠️ Are you sure you want to delete this class? This will remove all student associations.')) return;
+    showEditClassModal(classData) {
+        const modal = modalManager.create('edit-class-modal', 'Edit Class');
+        modal.setContent(`
+            <div class="space-y-4">
+                <input type="hidden" id="edit-class-id" value="${classData.id}">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Class Name</label>
+                    <input type="text" id="edit-class-name" value="${classData.name}" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Grade/Level</label>
+                    <input type="text" id="edit-class-grade" value="${classData.grade}" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Stream</label>
+                    <input type="text" id="edit-class-stream" value="${classData.stream || ''}" class="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm">
+                </div>
+                <div class="flex justify-end gap-2 pt-4 border-t">
+                    <button onclick="window.modalManager?.close('edit-class-modal')" class="px-4 py-2 text-sm border rounded-lg hover:bg-accent">Cancel</button>
+                    <button onclick="window.classManager.handleEditClass()" class="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-lg hover:bg-primary/90">Save Changes</button>
+                </div>
+            </div>
+        `);
+        modal.open();
+    },
+    
+    async handleEditClass() {
+        const classId = document.getElementById('edit-class-id')?.value;
+        const name = document.getElementById('edit-class-name')?.value;
+        const grade = document.getElementById('edit-class-grade')?.value;
+        const stream = document.getElementById('edit-class-stream')?.value;
         
-        toast.loading(true);
-        try {
-            const response = await apiClient.delete(`/api/admin/classes/${classId}`);
-            if (response.success) {
-                toast.success('✅ Class deleted successfully');
-                await this.loadClasses();
-                if (window.dashboard && window.dashboard.refreshClasses) {
-                    window.dashboard.refreshClasses();
-                }
+        const success = await this.updateClass(classId, { name, grade, stream });
+        
+        if (success) {
+            modalManager.close('edit-class-modal');
+            if (window.dashboard && window.dashboard.refreshClasses) {
+                window.dashboard.refreshClasses();
             }
-        } catch (error) {
-            toast.error(error.message || 'Failed to delete class');
-        } finally {
-            toast.loading(false);
         }
     }
 };
